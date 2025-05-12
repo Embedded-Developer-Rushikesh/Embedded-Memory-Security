@@ -8,7 +8,7 @@
 
 #define ONE_SEC_LOAD	 16000000
 
-#define MAX_DELAY		 0xFFFFFFFF
+#define ONE_MSEC_LOAD	 16000
 
 #define TICK_FREQ		 1
 
@@ -50,8 +50,8 @@ void timebase_init(void)
 	/*Disable global interrupts*/
 	__disable_irq();
 
-    /*Load the timer with number of clock cycles per second*/
-	SysTick->LOAD =  ONE_SEC_LOAD - 1;
+    /*Load the timer with number of clock cycles per msecond*/
+	SysTick->LOAD =  ONE_MSEC_LOAD - 1;
 
     /*Clear systick current value register*/
 	SysTick->VAL = 0;

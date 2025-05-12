@@ -1,4 +1,4 @@
-Src/bsp.o: ../Src/bsp.c ../Inc/bsp.h \
+Src/flash_driver.o: ../Src/flash_driver.c ../Inc/flash_driver.h \
  C:/Users/Gaming\ Laptop\ RTX/Documents/Embed_MemSecurity/13_Flash_Protection/chip_headers/CMSIS/Device/ST/STM32F4xx/Include/stm32f4xx.h \
  C:/Users/Gaming\ Laptop\ RTX/Documents/Embed_MemSecurity/13_Flash_Protection/chip_headers/CMSIS/Device/ST/STM32F4xx/Include/stm32f411xe.h \
  C:/Users/Gaming\ Laptop\ RTX/Documents/Embed_MemSecurity/13_Flash_Protection/chip_headers/CMSIS/Include/core_cm4.h \
@@ -6,9 +6,10 @@ Src/bsp.o: ../Src/bsp.c ../Inc/bsp.h \
  C:/Users/Gaming\ Laptop\ RTX/Documents/Embed_MemSecurity/13_Flash_Protection/chip_headers/CMSIS/Include/cmsis_compiler.h \
  C:/Users/Gaming\ Laptop\ RTX/Documents/Embed_MemSecurity/13_Flash_Protection/chip_headers/CMSIS/Include/cmsis_gcc.h \
  C:/Users/Gaming\ Laptop\ RTX/Documents/Embed_MemSecurity/13_Flash_Protection/chip_headers/CMSIS/Include/mpu_armv7.h \
- C:/Users/Gaming\ Laptop\ RTX/Documents/Embed_MemSecurity/13_Flash_Protection/chip_headers/CMSIS/Device/ST/STM32F4xx/Include/system_stm32f4xx.h
+ C:/Users/Gaming\ Laptop\ RTX/Documents/Embed_MemSecurity/13_Flash_Protection/chip_headers/CMSIS/Device/ST/STM32F4xx/Include/system_stm32f4xx.h \
+ ../Inc/timebase.h
 
-../Inc/bsp.h:
+../Inc/flash_driver.h:
 
 C:/Users/Gaming\ Laptop\ RTX/Documents/Embed_MemSecurity/13_Flash_Protection/chip_headers/CMSIS/Device/ST/STM32F4xx/Include/stm32f4xx.h:
 
@@ -25,3 +26,5 @@ C:/Users/Gaming\ Laptop\ RTX/Documents/Embed_MemSecurity/13_Flash_Protection/chi
 C:/Users/Gaming\ Laptop\ RTX/Documents/Embed_MemSecurity/13_Flash_Protection/chip_headers/CMSIS/Include/mpu_armv7.h:
 
 C:/Users/Gaming\ Laptop\ RTX/Documents/Embed_MemSecurity/13_Flash_Protection/chip_headers/CMSIS/Device/ST/STM32F4xx/Include/system_stm32f4xx.h:
+
+../Inc/timebase.h:

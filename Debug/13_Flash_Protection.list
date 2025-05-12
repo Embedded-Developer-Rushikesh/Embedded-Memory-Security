@@ -1,0 +1,2543 @@
+
+13_Flash_Protection.elf:     file format elf32-littlearm
+
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .isr_vector   00000198  08000000  08000000  00010000  2**0
+                  CONTENTS, ALLOC, LOAD, READONLY, DATA
+  1 .text         00000e40  08000198  08000198  00010198  2**2
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  2 .rodata       00000038  08000fd8  08000fd8  00010fd8  2**2
+                  CONTENTS, ALLOC, LOAD, READONLY, DATA
+  3 .ARM.extab    00000000  08001010  08001010  00020034  2**0
+                  CONTENTS
+  4 .ARM          00000000  08001010  08001010  00020034  2**0
+                  CONTENTS
+  5 .preinit_array 00000000  08001010  08001010  00020034  2**0
+                  CONTENTS, ALLOC, LOAD, DATA
+  6 .init_array   00000004  08001010  08001010  00011010  2**2
+                  CONTENTS, ALLOC, LOAD, DATA
+  7 .fini_array   00000004  08001014  08001014  00011014  2**2
+                  CONTENTS, ALLOC, LOAD, DATA
+  8 .data         00000034  20000000  08001018  00020000  2**2
+                  CONTENTS, ALLOC, LOAD, DATA
+  9 .bss          000001e8  20000034  0800104c  00020034  2**2
+                  ALLOC
+ 10 ._user_heap_stack 00000604  2000021c  0800104c  0002021c  2**0
+                  ALLOC
+ 11 .ARM.attributes 00000030  00000000  00000000  00020034  2**0
+                  CONTENTS, READONLY
+ 12 .debug_info   00002bc8  00000000  00000000  00020064  2**0
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+ 13 .debug_abbrev 00000adc  00000000  00000000  00022c2c  2**0
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+ 14 .debug_aranges 00000210  00000000  00000000  00023708  2**3
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+ 15 .debug_ranges 000001a8  00000000  00000000  00023918  2**3
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+ 16 .debug_macro  0000196c  00000000  00000000  00023ac0  2**0
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+ 17 .debug_line   00002ad1  00000000  00000000  0002542c  2**0
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+ 18 .debug_str    00054813  00000000  00000000  00027efd  2**0
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+ 19 .comment      00000053  00000000  00000000  0007c710  2**0
+                  CONTENTS, READONLY
+ 20 .debug_frame  00000688  00000000  00000000  0007c764  2**2
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+
+Disassembly of section .text:
+
+08000198 <__do_global_dtors_aux>:
+ 8000198:	b510      	push	{r4, lr}
+ 800019a:	4c05      	ldr	r4, [pc, #20]	; (80001b0 <__do_global_dtors_aux+0x18>)
+ 800019c:	7823      	ldrb	r3, [r4, #0]
+ 800019e:	b933      	cbnz	r3, 80001ae <__do_global_dtors_aux+0x16>
+ 80001a0:	4b04      	ldr	r3, [pc, #16]	; (80001b4 <__do_global_dtors_aux+0x1c>)
+ 80001a2:	b113      	cbz	r3, 80001aa <__do_global_dtors_aux+0x12>
+ 80001a4:	4804      	ldr	r0, [pc, #16]	; (80001b8 <__do_global_dtors_aux+0x20>)
+ 80001a6:	f3af 8000 	nop.w
+ 80001aa:	2301      	movs	r3, #1
+ 80001ac:	7023      	strb	r3, [r4, #0]
+ 80001ae:	bd10      	pop	{r4, pc}
+ 80001b0:	20000034 	.word	0x20000034
+ 80001b4:	00000000 	.word	0x00000000
+ 80001b8:	08000fc0 	.word	0x08000fc0
+
+080001bc <frame_dummy>:
+ 80001bc:	b508      	push	{r3, lr}
+ 80001be:	4b03      	ldr	r3, [pc, #12]	; (80001cc <frame_dummy+0x10>)
+ 80001c0:	b11b      	cbz	r3, 80001ca <frame_dummy+0xe>
+ 80001c2:	4903      	ldr	r1, [pc, #12]	; (80001d0 <frame_dummy+0x14>)
+ 80001c4:	4803      	ldr	r0, [pc, #12]	; (80001d4 <frame_dummy+0x18>)
+ 80001c6:	f3af 8000 	nop.w
+ 80001ca:	bd08      	pop	{r3, pc}
+ 80001cc:	00000000 	.word	0x00000000
+ 80001d0:	20000038 	.word	0x20000038
+ 80001d4:	08000fc0 	.word	0x08000fc0
+
+080001d8 <strlen>:
+ 80001d8:	4603      	mov	r3, r0
+ 80001da:	f813 2b01 	ldrb.w	r2, [r3], #1
+ 80001de:	2a00      	cmp	r2, #0
+ 80001e0:	d1fb      	bne.n	80001da <strlen+0x2>
+ 80001e2:	1a18      	subs	r0, r3, r0
+ 80001e4:	3801      	subs	r0, #1
+ 80001e6:	4770      	bx	lr
+
+080001e8 <flash_ex_erase>:
+DEV_StatusTypeDef  flash_wait_for_last_operation(uint32_t timeout);
+static void flush_caches(void);
+
+
+DEV_StatusTypeDef flash_ex_erase(FLASH_EraseInitTypeDef *pt_erase_init, uint32_t *sect_err)
+{
+ 80001e8:	b580      	push	{r7, lr}
+ 80001ea:	b084      	sub	sp, #16
+ 80001ec:	af00      	add	r7, sp, #0
+ 80001ee:	6078      	str	r0, [r7, #4]
+ 80001f0:	6039      	str	r1, [r7, #0]
+	DEV_StatusTypeDef  status =  DEV_ERROR;
+ 80001f2:	2301      	movs	r3, #1
+ 80001f4:	73fb      	strb	r3, [r7, #15]
+	uint32_t index = 0U;
+ 80001f6:	2300      	movs	r3, #0
+ 80001f8:	60bb      	str	r3, [r7, #8]
+
+	/*wait for last operation to be completed*/
+	status = flash_wait_for_last_operation(FLASH_TIMEOUT_VALUE);
+ 80001fa:	f24c 3050 	movw	r0, #50000	; 0xc350
+ 80001fe:	f000 f8b1 	bl	8000364 <flash_wait_for_last_operation>
+ 8000202:	4603      	mov	r3, r0
+ 8000204:	73fb      	strb	r3, [r7, #15]
+
+	if( status  == DEV_OK)
+ 8000206:	7bfb      	ldrb	r3, [r7, #15]
+ 8000208:	2b00      	cmp	r3, #0
+ 800020a:	d145      	bne.n	8000298 <flash_ex_erase+0xb0>
+	{
+	   *sect_err =  0xFFFFFFFFU;
+ 800020c:	683b      	ldr	r3, [r7, #0]
+ 800020e:	f04f 32ff 	mov.w	r2, #4294967295
+ 8000212:	601a      	str	r2, [r3, #0]
+
+	   if(pt_erase_init->TypeErase ==  FLASH_TYPEERASE_MASSERASE)
+ 8000214:	687b      	ldr	r3, [r7, #4]
+ 8000216:	681b      	ldr	r3, [r3, #0]
+ 8000218:	2b01      	cmp	r3, #1
+ 800021a:	d112      	bne.n	8000242 <flash_ex_erase+0x5a>
+	   {
+		   /*Mass erase*/
+		   flash_mass_erase((uint8_t)pt_erase_init->VoltageRange);
+ 800021c:	687b      	ldr	r3, [r7, #4]
+ 800021e:	68db      	ldr	r3, [r3, #12]
+ 8000220:	b2db      	uxtb	r3, r3
+ 8000222:	4618      	mov	r0, r3
+ 8000224:	f000 f87c 	bl	8000320 <flash_mass_erase>
+
+			/*wait for last operation to be completed*/
+			status = flash_wait_for_last_operation(FLASH_TIMEOUT_VALUE);
+ 8000228:	f24c 3050 	movw	r0, #50000	; 0xc350
+ 800022c:	f000 f89a 	bl	8000364 <flash_wait_for_last_operation>
+ 8000230:	4603      	mov	r3, r0
+ 8000232:	73fb      	strb	r3, [r7, #15]
+
+			/*Disable MER bit*/
+			FLASH->CR &=~(1U<<2);
+ 8000234:	4b1b      	ldr	r3, [pc, #108]	; (80002a4 <flash_ex_erase+0xbc>)
+ 8000236:	691b      	ldr	r3, [r3, #16]
+ 8000238:	4a1a      	ldr	r2, [pc, #104]	; (80002a4 <flash_ex_erase+0xbc>)
+ 800023a:	f023 0304 	bic.w	r3, r3, #4
+ 800023e:	6113      	str	r3, [r2, #16]
+ 8000240:	e028      	b.n	8000294 <flash_ex_erase+0xac>
+	   }
+	   else
+	   {
+		   /*Sector erase*/
+		   for(index = pt_erase_init->Sector; index <  (pt_erase_init->NbSectors + pt_erase_init->Sector); index++)
+ 8000242:	687b      	ldr	r3, [r7, #4]
+ 8000244:	685b      	ldr	r3, [r3, #4]
+ 8000246:	60bb      	str	r3, [r7, #8]
+ 8000248:	e01c      	b.n	8000284 <flash_ex_erase+0x9c>
+		   {
+			   flash_sector_erase(index, (uint8_t)pt_erase_init->VoltageRange);
+ 800024a:	687b      	ldr	r3, [r7, #4]
+ 800024c:	68db      	ldr	r3, [r3, #12]
+ 800024e:	b2db      	uxtb	r3, r3
+ 8000250:	4619      	mov	r1, r3
+ 8000252:	68b8      	ldr	r0, [r7, #8]
+ 8000254:	f000 f828 	bl	80002a8 <flash_sector_erase>
+
+				/*wait for last operation to be completed*/
+				status = flash_wait_for_last_operation(FLASH_TIMEOUT_VALUE);
+ 8000258:	f24c 3050 	movw	r0, #50000	; 0xc350
+ 800025c:	f000 f882 	bl	8000364 <flash_wait_for_last_operation>
+ 8000260:	4603      	mov	r3, r0
+ 8000262:	73fb      	strb	r3, [r7, #15]
+
+				/*Clear SNB bit and SER bit*/
+				CLEAR_BIT(FLASH->CR, (FLASH_CR_SER | FLASH_CR_SNB));
+ 8000264:	4b0f      	ldr	r3, [pc, #60]	; (80002a4 <flash_ex_erase+0xbc>)
+ 8000266:	691b      	ldr	r3, [r3, #16]
+ 8000268:	4a0e      	ldr	r2, [pc, #56]	; (80002a4 <flash_ex_erase+0xbc>)
+ 800026a:	f023 03fa 	bic.w	r3, r3, #250	; 0xfa
+ 800026e:	6113      	str	r3, [r2, #16]
+
+				if(status !=DEV_OK)
+ 8000270:	7bfb      	ldrb	r3, [r7, #15]
+ 8000272:	2b00      	cmp	r3, #0
+ 8000274:	d003      	beq.n	800027e <flash_ex_erase+0x96>
+				{
+					*sect_err =  index;
+ 8000276:	683b      	ldr	r3, [r7, #0]
+ 8000278:	68ba      	ldr	r2, [r7, #8]
+ 800027a:	601a      	str	r2, [r3, #0]
+					break;
+ 800027c:	e00a      	b.n	8000294 <flash_ex_erase+0xac>
+		   for(index = pt_erase_init->Sector; index <  (pt_erase_init->NbSectors + pt_erase_init->Sector); index++)
+ 800027e:	68bb      	ldr	r3, [r7, #8]
+ 8000280:	3301      	adds	r3, #1
+ 8000282:	60bb      	str	r3, [r7, #8]
+ 8000284:	687b      	ldr	r3, [r7, #4]
+ 8000286:	689a      	ldr	r2, [r3, #8]
+ 8000288:	687b      	ldr	r3, [r7, #4]
+ 800028a:	685b      	ldr	r3, [r3, #4]
+ 800028c:	4413      	add	r3, r2
+ 800028e:	68ba      	ldr	r2, [r7, #8]
+ 8000290:	429a      	cmp	r2, r3
+ 8000292:	d3da      	bcc.n	800024a <flash_ex_erase+0x62>
+				}
+		   }
+	   }
+
+	   flush_caches();
+ 8000294:	f000 f97c 	bl	8000590 <flush_caches>
+
+	}
+
+	return status;
+ 8000298:	7bfb      	ldrb	r3, [r7, #15]
+}
+ 800029a:	4618      	mov	r0, r3
+ 800029c:	3710      	adds	r7, #16
+ 800029e:	46bd      	mov	sp, r7
+ 80002a0:	bd80      	pop	{r7, pc}
+ 80002a2:	bf00      	nop
+ 80002a4:	40023c00 	.word	0x40023c00
+
+080002a8 <flash_sector_erase>:
+
+void flash_sector_erase(uint32_t sector, uint8_t voltage_range)
+{
+ 80002a8:	b480      	push	{r7}
+ 80002aa:	b085      	sub	sp, #20
+ 80002ac:	af00      	add	r7, sp, #0
+ 80002ae:	6078      	str	r0, [r7, #4]
+ 80002b0:	460b      	mov	r3, r1
+ 80002b2:	70fb      	strb	r3, [r7, #3]
+	uint32_t tmp_psize = 0U;
+ 80002b4:	2300      	movs	r3, #0
+ 80002b6:	60fb      	str	r3, [r7, #12]
+
+	if(voltage_range ==  FLASH_VOLTAGE_RANGE_1)
+ 80002b8:	78fb      	ldrb	r3, [r7, #3]
+ 80002ba:	2b00      	cmp	r3, #0
+ 80002bc:	d102      	bne.n	80002c4 <flash_sector_erase+0x1c>
+	{
+		tmp_psize = FLASH_PSIZE_BYTE;
+ 80002be:	2300      	movs	r3, #0
+ 80002c0:	60fb      	str	r3, [r7, #12]
+ 80002c2:	e010      	b.n	80002e6 <flash_sector_erase+0x3e>
+	}
+	else if(voltage_range ==  FLASH_VOLTAGE_RANGE_2)
+ 80002c4:	78fb      	ldrb	r3, [r7, #3]
+ 80002c6:	2b01      	cmp	r3, #1
+ 80002c8:	d103      	bne.n	80002d2 <flash_sector_erase+0x2a>
+	{
+		tmp_psize = FLASH_PSIZE_HALF_WORD;
+ 80002ca:	f44f 7380 	mov.w	r3, #256	; 0x100
+ 80002ce:	60fb      	str	r3, [r7, #12]
+ 80002d0:	e009      	b.n	80002e6 <flash_sector_erase+0x3e>
+	}
+	else if(voltage_range ==  FLASH_VOLTAGE_RANGE_3)
+ 80002d2:	78fb      	ldrb	r3, [r7, #3]
+ 80002d4:	2b02      	cmp	r3, #2
+ 80002d6:	d103      	bne.n	80002e0 <flash_sector_erase+0x38>
+	{
+		tmp_psize = FLASH_PSIZE_WORD;
+ 80002d8:	f44f 7300 	mov.w	r3, #512	; 0x200
+ 80002dc:	60fb      	str	r3, [r7, #12]
+ 80002de:	e002      	b.n	80002e6 <flash_sector_erase+0x3e>
+	}
+	else
+	{
+		tmp_psize = FLASH_PSIZE_DOUBLE_WORD;
+ 80002e0:	f44f 7340 	mov.w	r3, #768	; 0x300
+ 80002e4:	60fb      	str	r3, [r7, #12]
+
+	}
+
+	FLASH->CR &=~FLASH_CR_PSIZE;
+ 80002e6:	4b0d      	ldr	r3, [pc, #52]	; (800031c <flash_sector_erase+0x74>)
+ 80002e8:	691b      	ldr	r3, [r3, #16]
+ 80002ea:	4a0c      	ldr	r2, [pc, #48]	; (800031c <flash_sector_erase+0x74>)
+ 80002ec:	f423 7340 	bic.w	r3, r3, #768	; 0x300
+ 80002f0:	6113      	str	r3, [r2, #16]
+	FLASH->CR |= tmp_psize;
+ 80002f2:	4b0a      	ldr	r3, [pc, #40]	; (800031c <flash_sector_erase+0x74>)
+ 80002f4:	691a      	ldr	r2, [r3, #16]
+ 80002f6:	4909      	ldr	r1, [pc, #36]	; (800031c <flash_sector_erase+0x74>)
+ 80002f8:	68fb      	ldr	r3, [r7, #12]
+ 80002fa:	4313      	orrs	r3, r2
+ 80002fc:	610b      	str	r3, [r1, #16]
+
+	/*Set SER bit and select sector*/
+	FLASH->CR |=  FLASH_CR_SER |(sector << FLASH_CR_SNB_Pos);
+ 80002fe:	4b07      	ldr	r3, [pc, #28]	; (800031c <flash_sector_erase+0x74>)
+ 8000300:	691a      	ldr	r2, [r3, #16]
+ 8000302:	687b      	ldr	r3, [r7, #4]
+ 8000304:	00db      	lsls	r3, r3, #3
+ 8000306:	4313      	orrs	r3, r2
+ 8000308:	4a04      	ldr	r2, [pc, #16]	; (800031c <flash_sector_erase+0x74>)
+ 800030a:	f043 0302 	orr.w	r3, r3, #2
+ 800030e:	6113      	str	r3, [r2, #16]
+
+
+}
+ 8000310:	bf00      	nop
+ 8000312:	3714      	adds	r7, #20
+ 8000314:	46bd      	mov	sp, r7
+ 8000316:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 800031a:	4770      	bx	lr
+ 800031c:	40023c00 	.word	0x40023c00
+
+08000320 <flash_mass_erase>:
+
+void flash_mass_erase(uint8_t voltage_range)
+{
+ 8000320:	b480      	push	{r7}
+ 8000322:	b083      	sub	sp, #12
+ 8000324:	af00      	add	r7, sp, #0
+ 8000326:	4603      	mov	r3, r0
+ 8000328:	71fb      	strb	r3, [r7, #7]
+	/*Clear PSIZE field*/
+	FLASH->CR &=~FLASH_CR_PSIZE;
+ 800032a:	4b0d      	ldr	r3, [pc, #52]	; (8000360 <flash_mass_erase+0x40>)
+ 800032c:	691b      	ldr	r3, [r3, #16]
+ 800032e:	4a0c      	ldr	r2, [pc, #48]	; (8000360 <flash_mass_erase+0x40>)
+ 8000330:	f423 7340 	bic.w	r3, r3, #768	; 0x300
+ 8000334:	6113      	str	r3, [r2, #16]
+
+	/*Set MER bit*/
+	FLASH->CR |= FLASH_CR_MER;
+ 8000336:	4b0a      	ldr	r3, [pc, #40]	; (8000360 <flash_mass_erase+0x40>)
+ 8000338:	691b      	ldr	r3, [r3, #16]
+ 800033a:	4a09      	ldr	r2, [pc, #36]	; (8000360 <flash_mass_erase+0x40>)
+ 800033c:	f043 0304 	orr.w	r3, r3, #4
+ 8000340:	6113      	str	r3, [r2, #16]
+	/*Set Start bit and voltage*/
+	FLASH->CR |=  FLASH_CR_STRT |((uint32_t)voltage_range <<8U);
+ 8000342:	4b07      	ldr	r3, [pc, #28]	; (8000360 <flash_mass_erase+0x40>)
+ 8000344:	691a      	ldr	r2, [r3, #16]
+ 8000346:	79fb      	ldrb	r3, [r7, #7]
+ 8000348:	021b      	lsls	r3, r3, #8
+ 800034a:	4313      	orrs	r3, r2
+ 800034c:	4a04      	ldr	r2, [pc, #16]	; (8000360 <flash_mass_erase+0x40>)
+ 800034e:	f443 3380 	orr.w	r3, r3, #65536	; 0x10000
+ 8000352:	6113      	str	r3, [r2, #16]
+}
+ 8000354:	bf00      	nop
+ 8000356:	370c      	adds	r7, #12
+ 8000358:	46bd      	mov	sp, r7
+ 800035a:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 800035e:	4770      	bx	lr
+ 8000360:	40023c00 	.word	0x40023c00
+
+08000364 <flash_wait_for_last_operation>:
+
+DEV_StatusTypeDef  flash_wait_for_last_operation(uint32_t timeout)
+{
+ 8000364:	b580      	push	{r7, lr}
+ 8000366:	b084      	sub	sp, #16
+ 8000368:	af00      	add	r7, sp, #0
+ 800036a:	6078      	str	r0, [r7, #4]
+   uint32_t tickstart = 0U;
+ 800036c:	2300      	movs	r3, #0
+ 800036e:	60fb      	str	r3, [r7, #12]
+
+   pFlash.ErrorCode = 0;
+ 8000370:	4b15      	ldr	r3, [pc, #84]	; (80003c8 <flash_wait_for_last_operation+0x64>)
+ 8000372:	2200      	movs	r2, #0
+ 8000374:	615a      	str	r2, [r3, #20]
+
+   tickstart = get_tick();
+ 8000376:	f000 fd15 	bl	8000da4 <get_tick>
+ 800037a:	60f8      	str	r0, [r7, #12]
+
+   while((FLASH->SR & FLASH_SR_BSY) != RESET)
+ 800037c:	e010      	b.n	80003a0 <flash_wait_for_last_operation+0x3c>
+   {
+	   if(timeout != MAX_DELAY)
+ 800037e:	687b      	ldr	r3, [r7, #4]
+ 8000380:	f1b3 3fff 	cmp.w	r3, #4294967295
+ 8000384:	d00c      	beq.n	80003a0 <flash_wait_for_last_operation+0x3c>
+	   {
+		   if((timeout  == 0) || ((get_tick() -  tickstart) > timeout))
+ 8000386:	687b      	ldr	r3, [r7, #4]
+ 8000388:	2b00      	cmp	r3, #0
+ 800038a:	d007      	beq.n	800039c <flash_wait_for_last_operation+0x38>
+ 800038c:	f000 fd0a 	bl	8000da4 <get_tick>
+ 8000390:	4602      	mov	r2, r0
+ 8000392:	68fb      	ldr	r3, [r7, #12]
+ 8000394:	1ad3      	subs	r3, r2, r3
+ 8000396:	687a      	ldr	r2, [r7, #4]
+ 8000398:	429a      	cmp	r2, r3
+ 800039a:	d201      	bcs.n	80003a0 <flash_wait_for_last_operation+0x3c>
+		   {
+			   return DEV_TIMEOUT;
+ 800039c:	2303      	movs	r3, #3
+ 800039e:	e00f      	b.n	80003c0 <flash_wait_for_last_operation+0x5c>
+   while((FLASH->SR & FLASH_SR_BSY) != RESET)
+ 80003a0:	4b0a      	ldr	r3, [pc, #40]	; (80003cc <flash_wait_for_last_operation+0x68>)
+ 80003a2:	68db      	ldr	r3, [r3, #12]
+ 80003a4:	f403 3380 	and.w	r3, r3, #65536	; 0x10000
+ 80003a8:	2b00      	cmp	r3, #0
+ 80003aa:	d1e8      	bne.n	800037e <flash_wait_for_last_operation+0x1a>
+		   }
+	   }
+   }
+
+   /*Check end of operation flag*/
+   if((FLASH->SR & (1U<<0)) != RESET)
+ 80003ac:	4b07      	ldr	r3, [pc, #28]	; (80003cc <flash_wait_for_last_operation+0x68>)
+ 80003ae:	68db      	ldr	r3, [r3, #12]
+ 80003b0:	f003 0301 	and.w	r3, r3, #1
+ 80003b4:	2b00      	cmp	r3, #0
+ 80003b6:	d002      	beq.n	80003be <flash_wait_for_last_operation+0x5a>
+   {
+	   /*Clear flash end of operation pending bit*/
+	   FLASH->SR = (1U<<0);
+ 80003b8:	4b04      	ldr	r3, [pc, #16]	; (80003cc <flash_wait_for_last_operation+0x68>)
+ 80003ba:	2201      	movs	r2, #1
+ 80003bc:	60da      	str	r2, [r3, #12]
+   }
+
+   return DEV_OK;
+ 80003be:	2300      	movs	r3, #0
+}
+ 80003c0:	4618      	mov	r0, r3
+ 80003c2:	3710      	adds	r7, #16
+ 80003c4:	46bd      	mov	sp, r7
+ 80003c6:	bd80      	pop	{r7, pc}
+ 80003c8:	20000054 	.word	0x20000054
+ 80003cc:	40023c00 	.word	0x40023c00
+
+080003d0 <flash_program>:
+
+
+DEV_StatusTypeDef flash_program(uint32_t prg_type,  uint32_t address, uint64_t data)
+{
+ 80003d0:	b580      	push	{r7, lr}
+ 80003d2:	b086      	sub	sp, #24
+ 80003d4:	af00      	add	r7, sp, #0
+ 80003d6:	60f8      	str	r0, [r7, #12]
+ 80003d8:	60b9      	str	r1, [r7, #8]
+ 80003da:	e9c7 2300 	strd	r2, r3, [r7]
+	DEV_StatusTypeDef status = DEV_ERROR;
+ 80003de:	2301      	movs	r3, #1
+ 80003e0:	75fb      	strb	r3, [r7, #23]
+
+	/*wait for last operation to be completed*/
+	status = flash_wait_for_last_operation(FLASH_TIMEOUT_VALUE);
+ 80003e2:	f24c 3050 	movw	r0, #50000	; 0xc350
+ 80003e6:	f7ff ffbd 	bl	8000364 <flash_wait_for_last_operation>
+ 80003ea:	4603      	mov	r3, r0
+ 80003ec:	75fb      	strb	r3, [r7, #23]
+
+	if( status == DEV_OK)
+ 80003ee:	7dfb      	ldrb	r3, [r7, #23]
+ 80003f0:	2b00      	cmp	r3, #0
+ 80003f2:	d12b      	bne.n	800044c <flash_program+0x7c>
+	{
+		if(prg_type == FLASH_TYPEPROGRAM_BYTE)
+ 80003f4:	68fb      	ldr	r3, [r7, #12]
+ 80003f6:	2b00      	cmp	r3, #0
+ 80003f8:	d105      	bne.n	8000406 <flash_program+0x36>
+		{
+			flash_program_byte(address,(uint8_t)data);
+ 80003fa:	783b      	ldrb	r3, [r7, #0]
+ 80003fc:	4619      	mov	r1, r3
+ 80003fe:	68b8      	ldr	r0, [r7, #8]
+ 8000400:	f000 f82c 	bl	800045c <flash_program_byte>
+ 8000404:	e016      	b.n	8000434 <flash_program+0x64>
+		}
+
+		else if(prg_type == FLASH_TYPEPROGRAM_HALFWORD)
+ 8000406:	68fb      	ldr	r3, [r7, #12]
+ 8000408:	2b01      	cmp	r3, #1
+ 800040a:	d105      	bne.n	8000418 <flash_program+0x48>
+		{
+			flash_program_halfword(address,(uint16_t)data);
+ 800040c:	883b      	ldrh	r3, [r7, #0]
+ 800040e:	4619      	mov	r1, r3
+ 8000410:	68b8      	ldr	r0, [r7, #8]
+ 8000412:	f000 f845 	bl	80004a0 <flash_program_halfword>
+ 8000416:	e00d      	b.n	8000434 <flash_program+0x64>
+		}
+		else if(prg_type == FLASH_TYPEPROGRAM_WORD)
+ 8000418:	68fb      	ldr	r3, [r7, #12]
+ 800041a:	2b02      	cmp	r3, #2
+ 800041c:	d105      	bne.n	800042a <flash_program+0x5a>
+		{
+			flash_program_word(address,(uint32_t)data);
+ 800041e:	683b      	ldr	r3, [r7, #0]
+ 8000420:	4619      	mov	r1, r3
+ 8000422:	68b8      	ldr	r0, [r7, #8]
+ 8000424:	f000 f860 	bl	80004e8 <flash_program_word>
+ 8000428:	e004      	b.n	8000434 <flash_program+0x64>
+		}
+		else
+		{
+			flash_program_doubleword(address,data);
+ 800042a:	e9d7 2300 	ldrd	r2, r3, [r7]
+ 800042e:	68b8      	ldr	r0, [r7, #8]
+ 8000430:	f000 f87c 	bl	800052c <flash_program_doubleword>
+
+		}
+
+		/*wait for last operation to be completed*/
+		status = flash_wait_for_last_operation(FLASH_TIMEOUT_VALUE);
+ 8000434:	f24c 3050 	movw	r0, #50000	; 0xc350
+ 8000438:	f7ff ff94 	bl	8000364 <flash_wait_for_last_operation>
+ 800043c:	4603      	mov	r3, r0
+ 800043e:	75fb      	strb	r3, [r7, #23]
+
+		/*Clear Program bit*/
+		FLASH->CR &=~FLASH_CR_PG;
+ 8000440:	4b05      	ldr	r3, [pc, #20]	; (8000458 <flash_program+0x88>)
+ 8000442:	691b      	ldr	r3, [r3, #16]
+ 8000444:	4a04      	ldr	r2, [pc, #16]	; (8000458 <flash_program+0x88>)
+ 8000446:	f023 0301 	bic.w	r3, r3, #1
+ 800044a:	6113      	str	r3, [r2, #16]
+	}
+
+	return status;
+ 800044c:	7dfb      	ldrb	r3, [r7, #23]
+}
+ 800044e:	4618      	mov	r0, r3
+ 8000450:	3718      	adds	r7, #24
+ 8000452:	46bd      	mov	sp, r7
+ 8000454:	bd80      	pop	{r7, pc}
+ 8000456:	bf00      	nop
+ 8000458:	40023c00 	.word	0x40023c00
+
+0800045c <flash_program_byte>:
+void flash_program_byte(uint32_t address, uint8_t data)
+{
+ 800045c:	b480      	push	{r7}
+ 800045e:	b083      	sub	sp, #12
+ 8000460:	af00      	add	r7, sp, #0
+ 8000462:	6078      	str	r0, [r7, #4]
+ 8000464:	460b      	mov	r3, r1
+ 8000466:	70fb      	strb	r3, [r7, #3]
+	/*Clear PSIZE field*/
+	FLASH->CR &=~FLASH_CR_PSIZE;
+ 8000468:	4b0c      	ldr	r3, [pc, #48]	; (800049c <flash_program_byte+0x40>)
+ 800046a:	691b      	ldr	r3, [r3, #16]
+ 800046c:	4a0b      	ldr	r2, [pc, #44]	; (800049c <flash_program_byte+0x40>)
+ 800046e:	f423 7340 	bic.w	r3, r3, #768	; 0x300
+ 8000472:	6113      	str	r3, [r2, #16]
+
+	/*Set PSIZE for byte*/
+	FLASH->CR |=FLASH_PSIZE_BYTE;
+ 8000474:	4b09      	ldr	r3, [pc, #36]	; (800049c <flash_program_byte+0x40>)
+ 8000476:	4a09      	ldr	r2, [pc, #36]	; (800049c <flash_program_byte+0x40>)
+ 8000478:	691b      	ldr	r3, [r3, #16]
+ 800047a:	6113      	str	r3, [r2, #16]
+
+	/*Set PG bit*/
+	FLASH->CR |= FLASH_CR_PG;
+ 800047c:	4b07      	ldr	r3, [pc, #28]	; (800049c <flash_program_byte+0x40>)
+ 800047e:	691b      	ldr	r3, [r3, #16]
+ 8000480:	4a06      	ldr	r2, [pc, #24]	; (800049c <flash_program_byte+0x40>)
+ 8000482:	f043 0301 	orr.w	r3, r3, #1
+ 8000486:	6113      	str	r3, [r2, #16]
+
+	/*Put data at the address*/
+	*(__IO uint8_t *)address =  data;
+ 8000488:	687b      	ldr	r3, [r7, #4]
+ 800048a:	78fa      	ldrb	r2, [r7, #3]
+ 800048c:	701a      	strb	r2, [r3, #0]
+}
+ 800048e:	bf00      	nop
+ 8000490:	370c      	adds	r7, #12
+ 8000492:	46bd      	mov	sp, r7
+ 8000494:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 8000498:	4770      	bx	lr
+ 800049a:	bf00      	nop
+ 800049c:	40023c00 	.word	0x40023c00
+
+080004a0 <flash_program_halfword>:
+
+void flash_program_halfword(uint32_t address, uint16_t data)
+{
+ 80004a0:	b480      	push	{r7}
+ 80004a2:	b083      	sub	sp, #12
+ 80004a4:	af00      	add	r7, sp, #0
+ 80004a6:	6078      	str	r0, [r7, #4]
+ 80004a8:	460b      	mov	r3, r1
+ 80004aa:	807b      	strh	r3, [r7, #2]
+	/*Clear PSIZE field*/
+	FLASH->CR &=~FLASH_CR_PSIZE;
+ 80004ac:	4b0d      	ldr	r3, [pc, #52]	; (80004e4 <flash_program_halfword+0x44>)
+ 80004ae:	691b      	ldr	r3, [r3, #16]
+ 80004b0:	4a0c      	ldr	r2, [pc, #48]	; (80004e4 <flash_program_halfword+0x44>)
+ 80004b2:	f423 7340 	bic.w	r3, r3, #768	; 0x300
+ 80004b6:	6113      	str	r3, [r2, #16]
+
+	/*Set PSIZE for halfword*/
+	FLASH->CR |=FLASH_PSIZE_HALF_WORD;
+ 80004b8:	4b0a      	ldr	r3, [pc, #40]	; (80004e4 <flash_program_halfword+0x44>)
+ 80004ba:	691b      	ldr	r3, [r3, #16]
+ 80004bc:	4a09      	ldr	r2, [pc, #36]	; (80004e4 <flash_program_halfword+0x44>)
+ 80004be:	f443 7380 	orr.w	r3, r3, #256	; 0x100
+ 80004c2:	6113      	str	r3, [r2, #16]
+
+	/*Set PG bit*/
+	FLASH->CR |= FLASH_CR_PG;
+ 80004c4:	4b07      	ldr	r3, [pc, #28]	; (80004e4 <flash_program_halfword+0x44>)
+ 80004c6:	691b      	ldr	r3, [r3, #16]
+ 80004c8:	4a06      	ldr	r2, [pc, #24]	; (80004e4 <flash_program_halfword+0x44>)
+ 80004ca:	f043 0301 	orr.w	r3, r3, #1
+ 80004ce:	6113      	str	r3, [r2, #16]
+
+	/*Put data at the address*/
+	*(__IO uint16_t *)address =  data;
+ 80004d0:	687b      	ldr	r3, [r7, #4]
+ 80004d2:	887a      	ldrh	r2, [r7, #2]
+ 80004d4:	801a      	strh	r2, [r3, #0]
+}
+ 80004d6:	bf00      	nop
+ 80004d8:	370c      	adds	r7, #12
+ 80004da:	46bd      	mov	sp, r7
+ 80004dc:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 80004e0:	4770      	bx	lr
+ 80004e2:	bf00      	nop
+ 80004e4:	40023c00 	.word	0x40023c00
+
+080004e8 <flash_program_word>:
+
+void flash_program_word(uint32_t address, uint32_t data)
+{
+ 80004e8:	b480      	push	{r7}
+ 80004ea:	b083      	sub	sp, #12
+ 80004ec:	af00      	add	r7, sp, #0
+ 80004ee:	6078      	str	r0, [r7, #4]
+ 80004f0:	6039      	str	r1, [r7, #0]
+	/*Clear PSIZE field*/
+	FLASH->CR &=~FLASH_CR_PSIZE;
+ 80004f2:	4b0d      	ldr	r3, [pc, #52]	; (8000528 <flash_program_word+0x40>)
+ 80004f4:	691b      	ldr	r3, [r3, #16]
+ 80004f6:	4a0c      	ldr	r2, [pc, #48]	; (8000528 <flash_program_word+0x40>)
+ 80004f8:	f423 7340 	bic.w	r3, r3, #768	; 0x300
+ 80004fc:	6113      	str	r3, [r2, #16]
+
+	/*Set PSIZE for halfword*/
+	FLASH->CR |=FLASH_PSIZE_WORD;
+ 80004fe:	4b0a      	ldr	r3, [pc, #40]	; (8000528 <flash_program_word+0x40>)
+ 8000500:	691b      	ldr	r3, [r3, #16]
+ 8000502:	4a09      	ldr	r2, [pc, #36]	; (8000528 <flash_program_word+0x40>)
+ 8000504:	f443 7300 	orr.w	r3, r3, #512	; 0x200
+ 8000508:	6113      	str	r3, [r2, #16]
+
+	/*Set PG bit*/
+	FLASH->CR |= FLASH_CR_PG;
+ 800050a:	4b07      	ldr	r3, [pc, #28]	; (8000528 <flash_program_word+0x40>)
+ 800050c:	691b      	ldr	r3, [r3, #16]
+ 800050e:	4a06      	ldr	r2, [pc, #24]	; (8000528 <flash_program_word+0x40>)
+ 8000510:	f043 0301 	orr.w	r3, r3, #1
+ 8000514:	6113      	str	r3, [r2, #16]
+
+	/*Put data at the address*/
+	*(__IO uint32_t *)address =  data;
+ 8000516:	687b      	ldr	r3, [r7, #4]
+ 8000518:	683a      	ldr	r2, [r7, #0]
+ 800051a:	601a      	str	r2, [r3, #0]
+}
+ 800051c:	bf00      	nop
+ 800051e:	370c      	adds	r7, #12
+ 8000520:	46bd      	mov	sp, r7
+ 8000522:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 8000526:	4770      	bx	lr
+ 8000528:	40023c00 	.word	0x40023c00
+
+0800052c <flash_program_doubleword>:
+
+void flash_program_doubleword(uint32_t address, uint64_t data)
+{
+ 800052c:	b480      	push	{r7}
+ 800052e:	b085      	sub	sp, #20
+ 8000530:	af00      	add	r7, sp, #0
+ 8000532:	60f8      	str	r0, [r7, #12]
+ 8000534:	e9c7 2300 	strd	r2, r3, [r7]
+	/*Clear PSIZE field*/
+	FLASH->CR &=~FLASH_CR_PSIZE;
+ 8000538:	4b14      	ldr	r3, [pc, #80]	; (800058c <flash_program_doubleword+0x60>)
+ 800053a:	691b      	ldr	r3, [r3, #16]
+ 800053c:	4a13      	ldr	r2, [pc, #76]	; (800058c <flash_program_doubleword+0x60>)
+ 800053e:	f423 7340 	bic.w	r3, r3, #768	; 0x300
+ 8000542:	6113      	str	r3, [r2, #16]
+
+	/*Set PSIZE for halfword*/
+	FLASH->CR |=FLASH_PSIZE_DOUBLE_WORD;
+ 8000544:	4b11      	ldr	r3, [pc, #68]	; (800058c <flash_program_doubleword+0x60>)
+ 8000546:	691b      	ldr	r3, [r3, #16]
+ 8000548:	4a10      	ldr	r2, [pc, #64]	; (800058c <flash_program_doubleword+0x60>)
+ 800054a:	f443 7340 	orr.w	r3, r3, #768	; 0x300
+ 800054e:	6113      	str	r3, [r2, #16]
+
+	/*Set PG bit*/
+	FLASH->CR |= FLASH_CR_PG;
+ 8000550:	4b0e      	ldr	r3, [pc, #56]	; (800058c <flash_program_doubleword+0x60>)
+ 8000552:	691b      	ldr	r3, [r3, #16]
+ 8000554:	4a0d      	ldr	r2, [pc, #52]	; (800058c <flash_program_doubleword+0x60>)
+ 8000556:	f043 0301 	orr.w	r3, r3, #1
+ 800055a:	6113      	str	r3, [r2, #16]
+
+	/*Put  first word at the address*/
+	*(__IO uint32_t *)address =  (uint32_t)data;
+ 800055c:	68fb      	ldr	r3, [r7, #12]
+ 800055e:	683a      	ldr	r2, [r7, #0]
+ 8000560:	601a      	str	r2, [r3, #0]
+           so that all instructions following the ISB are fetched from cache or memory,
+           after the instruction has been completed.
+ */
+__STATIC_FORCEINLINE void __ISB(void)
+{
+  __ASM volatile ("isb 0xF":::"memory");
+ 8000562:	f3bf 8f6f 	isb	sy
+}
+ 8000566:	bf00      	nop
+
+	/*Flush pipeline : ensure programming is performed steps.*/
+	__ISB();
+
+	/*Put  second word at the address*/
+	*(__IO uint32_t *)(address+4) =  (uint32_t)(data>>32);
+ 8000568:	e9d7 0100 	ldrd	r0, r1, [r7]
+ 800056c:	f04f 0200 	mov.w	r2, #0
+ 8000570:	f04f 0300 	mov.w	r3, #0
+ 8000574:	000a      	movs	r2, r1
+ 8000576:	2300      	movs	r3, #0
+ 8000578:	68f9      	ldr	r1, [r7, #12]
+ 800057a:	3104      	adds	r1, #4
+ 800057c:	4613      	mov	r3, r2
+ 800057e:	600b      	str	r3, [r1, #0]
+}
+ 8000580:	bf00      	nop
+ 8000582:	3714      	adds	r7, #20
+ 8000584:	46bd      	mov	sp, r7
+ 8000586:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 800058a:	4770      	bx	lr
+ 800058c:	40023c00 	.word	0x40023c00
+
+08000590 <flush_caches>:
+
+static void flush_caches(void)
+{
+ 8000590:	b480      	push	{r7}
+ 8000592:	af00      	add	r7, sp, #0
+	/*Flush instruction cache*/
+	  if (READ_BIT(FLASH->ACR, FLASH_ACR_ICEN) != RESET)
+ 8000594:	4b20      	ldr	r3, [pc, #128]	; (8000618 <flush_caches+0x88>)
+ 8000596:	681b      	ldr	r3, [r3, #0]
+ 8000598:	f403 7300 	and.w	r3, r3, #512	; 0x200
+ 800059c:	2b00      	cmp	r3, #0
+ 800059e:	d017      	beq.n	80005d0 <flush_caches+0x40>
+	  {
+		    /* Disable instruction cache  */
+			  FLASH->ACR &= (~FLASH_ACR_ICEN);
+ 80005a0:	4b1d      	ldr	r3, [pc, #116]	; (8000618 <flush_caches+0x88>)
+ 80005a2:	681b      	ldr	r3, [r3, #0]
+ 80005a4:	4a1c      	ldr	r2, [pc, #112]	; (8000618 <flush_caches+0x88>)
+ 80005a6:	f423 7300 	bic.w	r3, r3, #512	; 0x200
+ 80005aa:	6013      	str	r3, [r2, #0]
+
+			/* Reset instruction cache */
+			  FLASH->ACR |= FLASH_ACR_ICRST;
+ 80005ac:	4b1a      	ldr	r3, [pc, #104]	; (8000618 <flush_caches+0x88>)
+ 80005ae:	681b      	ldr	r3, [r3, #0]
+ 80005b0:	4a19      	ldr	r2, [pc, #100]	; (8000618 <flush_caches+0x88>)
+ 80005b2:	f443 6300 	orr.w	r3, r3, #2048	; 0x800
+ 80005b6:	6013      	str	r3, [r2, #0]
+			 FLASH->ACR &= ~FLASH_ACR_ICRST;
+ 80005b8:	4b17      	ldr	r3, [pc, #92]	; (8000618 <flush_caches+0x88>)
+ 80005ba:	681b      	ldr	r3, [r3, #0]
+ 80005bc:	4a16      	ldr	r2, [pc, #88]	; (8000618 <flush_caches+0x88>)
+ 80005be:	f423 6300 	bic.w	r3, r3, #2048	; 0x800
+ 80005c2:	6013      	str	r3, [r2, #0]
+
+
+			 /* Enable instruction cache */
+			 FLASH->ACR |= FLASH_ACR_ICEN;
+ 80005c4:	4b14      	ldr	r3, [pc, #80]	; (8000618 <flush_caches+0x88>)
+ 80005c6:	681b      	ldr	r3, [r3, #0]
+ 80005c8:	4a13      	ldr	r2, [pc, #76]	; (8000618 <flush_caches+0x88>)
+ 80005ca:	f443 7300 	orr.w	r3, r3, #512	; 0x200
+ 80005ce:	6013      	str	r3, [r2, #0]
+	  }
+
+	  /*Flush data cache*/
+
+	  if (READ_BIT(FLASH->ACR, FLASH_ACR_DCEN) != RESET)
+ 80005d0:	4b11      	ldr	r3, [pc, #68]	; (8000618 <flush_caches+0x88>)
+ 80005d2:	681b      	ldr	r3, [r3, #0]
+ 80005d4:	f403 6380 	and.w	r3, r3, #1024	; 0x400
+ 80005d8:	2b00      	cmp	r3, #0
+ 80005da:	d017      	beq.n	800060c <flush_caches+0x7c>
+	  {
+	    /* Disable data cache  */
+		  FLASH->ACR &= (~FLASH_ACR_DCEN);
+ 80005dc:	4b0e      	ldr	r3, [pc, #56]	; (8000618 <flush_caches+0x88>)
+ 80005de:	681b      	ldr	r3, [r3, #0]
+ 80005e0:	4a0d      	ldr	r2, [pc, #52]	; (8000618 <flush_caches+0x88>)
+ 80005e2:	f423 6380 	bic.w	r3, r3, #1024	; 0x400
+ 80005e6:	6013      	str	r3, [r2, #0]
+
+	    /* Reset data cache */
+	    FLASH->ACR |= FLASH_ACR_DCRST;
+ 80005e8:	4b0b      	ldr	r3, [pc, #44]	; (8000618 <flush_caches+0x88>)
+ 80005ea:	681b      	ldr	r3, [r3, #0]
+ 80005ec:	4a0a      	ldr	r2, [pc, #40]	; (8000618 <flush_caches+0x88>)
+ 80005ee:	f443 5380 	orr.w	r3, r3, #4096	; 0x1000
+ 80005f2:	6013      	str	r3, [r2, #0]
+	    FLASH->ACR &= ~FLASH_ACR_DCRST;
+ 80005f4:	4b08      	ldr	r3, [pc, #32]	; (8000618 <flush_caches+0x88>)
+ 80005f6:	681b      	ldr	r3, [r3, #0]
+ 80005f8:	4a07      	ldr	r2, [pc, #28]	; (8000618 <flush_caches+0x88>)
+ 80005fa:	f423 5380 	bic.w	r3, r3, #4096	; 0x1000
+ 80005fe:	6013      	str	r3, [r2, #0]
+
+	    /* Enable data cache */
+	    FLASH->ACR |= FLASH_ACR_DCEN;
+ 8000600:	4b05      	ldr	r3, [pc, #20]	; (8000618 <flush_caches+0x88>)
+ 8000602:	681b      	ldr	r3, [r3, #0]
+ 8000604:	4a04      	ldr	r2, [pc, #16]	; (8000618 <flush_caches+0x88>)
+ 8000606:	f443 6380 	orr.w	r3, r3, #1024	; 0x400
+ 800060a:	6013      	str	r3, [r2, #0]
+	  }
+}
+ 800060c:	bf00      	nop
+ 800060e:	46bd      	mov	sp, r7
+ 8000610:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 8000614:	4770      	bx	lr
+ 8000616:	bf00      	nop
+ 8000618:	40023c00 	.word	0x40023c00
+
+0800061c <flash_unlock>:
+
+
+DEV_StatusTypeDef flash_unlock(void)
+{
+ 800061c:	b480      	push	{r7}
+ 800061e:	b083      	sub	sp, #12
+ 8000620:	af00      	add	r7, sp, #0
+	DEV_StatusTypeDef status = DEV_OK;
+ 8000622:	2300      	movs	r3, #0
+ 8000624:	71fb      	strb	r3, [r7, #7]
+
+	if(READ_BIT(FLASH->CR, FLASH_CR_LOCK) != RESET)
+ 8000626:	4b0b      	ldr	r3, [pc, #44]	; (8000654 <flash_unlock+0x38>)
+ 8000628:	691b      	ldr	r3, [r3, #16]
+ 800062a:	2b00      	cmp	r3, #0
+ 800062c:	da0b      	bge.n	8000646 <flash_unlock+0x2a>
+	{
+
+		/*Authorize flash write access*/
+		FLASH->KEYR  =  FLASH_KEY1;
+ 800062e:	4b09      	ldr	r3, [pc, #36]	; (8000654 <flash_unlock+0x38>)
+ 8000630:	4a09      	ldr	r2, [pc, #36]	; (8000658 <flash_unlock+0x3c>)
+ 8000632:	605a      	str	r2, [r3, #4]
+		FLASH->KEYR  =  FLASH_KEY2;
+ 8000634:	4b07      	ldr	r3, [pc, #28]	; (8000654 <flash_unlock+0x38>)
+ 8000636:	4a09      	ldr	r2, [pc, #36]	; (800065c <flash_unlock+0x40>)
+ 8000638:	605a      	str	r2, [r3, #4]
+
+		if(READ_BIT(FLASH->CR, FLASH_CR_LOCK) != RESET)
+ 800063a:	4b06      	ldr	r3, [pc, #24]	; (8000654 <flash_unlock+0x38>)
+ 800063c:	691b      	ldr	r3, [r3, #16]
+ 800063e:	2b00      	cmp	r3, #0
+ 8000640:	da01      	bge.n	8000646 <flash_unlock+0x2a>
+		{
+			status =  DEV_ERROR;
+ 8000642:	2301      	movs	r3, #1
+ 8000644:	71fb      	strb	r3, [r7, #7]
+		}
+
+	}
+
+	return status;
+ 8000646:	79fb      	ldrb	r3, [r7, #7]
+}
+ 8000648:	4618      	mov	r0, r3
+ 800064a:	370c      	adds	r7, #12
+ 800064c:	46bd      	mov	sp, r7
+ 800064e:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 8000652:	4770      	bx	lr
+ 8000654:	40023c00 	.word	0x40023c00
+ 8000658:	45670123 	.word	0x45670123
+ 800065c:	cdef89ab 	.word	0xcdef89ab
+
+08000660 <flash_get_error>:
+
+uint32_t flash_get_error(void)
+{
+ 8000660:	b480      	push	{r7}
+ 8000662:	af00      	add	r7, sp, #0
+	return pFlash.ErrorCode;
+ 8000664:	4b03      	ldr	r3, [pc, #12]	; (8000674 <flash_get_error+0x14>)
+ 8000666:	695b      	ldr	r3, [r3, #20]
+}
+ 8000668:	4618      	mov	r0, r3
+ 800066a:	46bd      	mov	sp, r7
+ 800066c:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 8000670:	4770      	bx	lr
+ 8000672:	bf00      	nop
+ 8000674:	20000054 	.word	0x20000054
+
+08000678 <get_sector>:
+
+static uint32_t get_sector(uint32_t address)
+{
+ 8000678:	b480      	push	{r7}
+ 800067a:	b085      	sub	sp, #20
+ 800067c:	af00      	add	r7, sp, #0
+ 800067e:	6078      	str	r0, [r7, #4]
+	uint32_t sector = 0;
+ 8000680:	2300      	movs	r3, #0
+ 8000682:	60fb      	str	r3, [r7, #12]
+	if((address < 0x08003FFF) && (address >= 0x08000000))
+ 8000684:	687b      	ldr	r3, [r7, #4]
+ 8000686:	4a2e      	ldr	r2, [pc, #184]	; (8000740 <get_sector+0xc8>)
+ 8000688:	4293      	cmp	r3, r2
+ 800068a:	d806      	bhi.n	800069a <get_sector+0x22>
+ 800068c:	687b      	ldr	r3, [r7, #4]
+ 800068e:	f1b3 6f00 	cmp.w	r3, #134217728	; 0x8000000
+ 8000692:	d302      	bcc.n	800069a <get_sector+0x22>
+	 {
+	     sector = FLASH_SECTOR_0;
+ 8000694:	2300      	movs	r3, #0
+ 8000696:	60fb      	str	r3, [r7, #12]
+ 8000698:	e04b      	b.n	8000732 <get_sector+0xba>
+	 }
+   else if((address < 0x08007FFF) && (address >= 0x08004000))
+ 800069a:	687b      	ldr	r3, [r7, #4]
+ 800069c:	4a29      	ldr	r2, [pc, #164]	; (8000744 <get_sector+0xcc>)
+ 800069e:	4293      	cmp	r3, r2
+ 80006a0:	d806      	bhi.n	80006b0 <get_sector+0x38>
+ 80006a2:	687b      	ldr	r3, [r7, #4]
+ 80006a4:	4a28      	ldr	r2, [pc, #160]	; (8000748 <get_sector+0xd0>)
+ 80006a6:	4293      	cmp	r3, r2
+ 80006a8:	d302      	bcc.n	80006b0 <get_sector+0x38>
+   {
+	 sector = FLASH_SECTOR_1;
+ 80006aa:	2301      	movs	r3, #1
+ 80006ac:	60fb      	str	r3, [r7, #12]
+ 80006ae:	e040      	b.n	8000732 <get_sector+0xba>
+   }
+   else if((address < 0x0800BFFF) && (address >= 0x08008000))
+ 80006b0:	687b      	ldr	r3, [r7, #4]
+ 80006b2:	4a26      	ldr	r2, [pc, #152]	; (800074c <get_sector+0xd4>)
+ 80006b4:	4293      	cmp	r3, r2
+ 80006b6:	d806      	bhi.n	80006c6 <get_sector+0x4e>
+ 80006b8:	687b      	ldr	r3, [r7, #4]
+ 80006ba:	4a25      	ldr	r2, [pc, #148]	; (8000750 <get_sector+0xd8>)
+ 80006bc:	4293      	cmp	r3, r2
+ 80006be:	d302      	bcc.n	80006c6 <get_sector+0x4e>
+   {
+	 sector = FLASH_SECTOR_2;
+ 80006c0:	2302      	movs	r3, #2
+ 80006c2:	60fb      	str	r3, [r7, #12]
+ 80006c4:	e035      	b.n	8000732 <get_sector+0xba>
+   }
+   else if((address < 0x0800FFFF) && (address >= 0x0800C000))
+ 80006c6:	687b      	ldr	r3, [r7, #4]
+ 80006c8:	4a22      	ldr	r2, [pc, #136]	; (8000754 <get_sector+0xdc>)
+ 80006ca:	4293      	cmp	r3, r2
+ 80006cc:	d206      	bcs.n	80006dc <get_sector+0x64>
+ 80006ce:	687b      	ldr	r3, [r7, #4]
+ 80006d0:	4a21      	ldr	r2, [pc, #132]	; (8000758 <get_sector+0xe0>)
+ 80006d2:	4293      	cmp	r3, r2
+ 80006d4:	d302      	bcc.n	80006dc <get_sector+0x64>
+   {
+	 sector = FLASH_SECTOR_3;
+ 80006d6:	2303      	movs	r3, #3
+ 80006d8:	60fb      	str	r3, [r7, #12]
+ 80006da:	e02a      	b.n	8000732 <get_sector+0xba>
+   }
+   else if((address < 0x0801FFFF) && (address >= 0x08010000))
+ 80006dc:	687b      	ldr	r3, [r7, #4]
+ 80006de:	4a1f      	ldr	r2, [pc, #124]	; (800075c <get_sector+0xe4>)
+ 80006e0:	4293      	cmp	r3, r2
+ 80006e2:	d206      	bcs.n	80006f2 <get_sector+0x7a>
+ 80006e4:	687b      	ldr	r3, [r7, #4]
+ 80006e6:	4a1b      	ldr	r2, [pc, #108]	; (8000754 <get_sector+0xdc>)
+ 80006e8:	4293      	cmp	r3, r2
+ 80006ea:	d902      	bls.n	80006f2 <get_sector+0x7a>
+   {
+	 sector = FLASH_SECTOR_4;
+ 80006ec:	2304      	movs	r3, #4
+ 80006ee:	60fb      	str	r3, [r7, #12]
+ 80006f0:	e01f      	b.n	8000732 <get_sector+0xba>
+   }
+   else if((address < 0x0803FFFF) && (address >= 0x08020000))
+ 80006f2:	687b      	ldr	r3, [r7, #4]
+ 80006f4:	4a1a      	ldr	r2, [pc, #104]	; (8000760 <get_sector+0xe8>)
+ 80006f6:	4293      	cmp	r3, r2
+ 80006f8:	d206      	bcs.n	8000708 <get_sector+0x90>
+ 80006fa:	687b      	ldr	r3, [r7, #4]
+ 80006fc:	4a17      	ldr	r2, [pc, #92]	; (800075c <get_sector+0xe4>)
+ 80006fe:	4293      	cmp	r3, r2
+ 8000700:	d902      	bls.n	8000708 <get_sector+0x90>
+   {
+	 sector = FLASH_SECTOR_5;
+ 8000702:	2305      	movs	r3, #5
+ 8000704:	60fb      	str	r3, [r7, #12]
+ 8000706:	e014      	b.n	8000732 <get_sector+0xba>
+   }
+   else if((address < 0x0805FFFF) && (address >= 0x08040000))
+ 8000708:	687b      	ldr	r3, [r7, #4]
+ 800070a:	4a16      	ldr	r2, [pc, #88]	; (8000764 <get_sector+0xec>)
+ 800070c:	4293      	cmp	r3, r2
+ 800070e:	d206      	bcs.n	800071e <get_sector+0xa6>
+ 8000710:	687b      	ldr	r3, [r7, #4]
+ 8000712:	4a13      	ldr	r2, [pc, #76]	; (8000760 <get_sector+0xe8>)
+ 8000714:	4293      	cmp	r3, r2
+ 8000716:	d902      	bls.n	800071e <get_sector+0xa6>
+   {
+	 sector = FLASH_SECTOR_6;
+ 8000718:	2306      	movs	r3, #6
+ 800071a:	60fb      	str	r3, [r7, #12]
+ 800071c:	e009      	b.n	8000732 <get_sector+0xba>
+   }
+   else if((address < 0x0807FFFF) && (address >= 0x08060000))
+ 800071e:	687b      	ldr	r3, [r7, #4]
+ 8000720:	4a11      	ldr	r2, [pc, #68]	; (8000768 <get_sector+0xf0>)
+ 8000722:	4293      	cmp	r3, r2
+ 8000724:	d205      	bcs.n	8000732 <get_sector+0xba>
+ 8000726:	687b      	ldr	r3, [r7, #4]
+ 8000728:	4a0e      	ldr	r2, [pc, #56]	; (8000764 <get_sector+0xec>)
+ 800072a:	4293      	cmp	r3, r2
+ 800072c:	d901      	bls.n	8000732 <get_sector+0xba>
+   {
+	 sector = FLASH_SECTOR_7;
+ 800072e:	2307      	movs	r3, #7
+ 8000730:	60fb      	str	r3, [r7, #12]
+   else
+   {
+     //Do something
+   }
+
+	return sector;
+ 8000732:	68fb      	ldr	r3, [r7, #12]
+
+}
+ 8000734:	4618      	mov	r0, r3
+ 8000736:	3714      	adds	r7, #20
+ 8000738:	46bd      	mov	sp, r7
+ 800073a:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 800073e:	4770      	bx	lr
+ 8000740:	08003ffe 	.word	0x08003ffe
+ 8000744:	08007ffe 	.word	0x08007ffe
+ 8000748:	08004000 	.word	0x08004000
+ 800074c:	0800bffe 	.word	0x0800bffe
+ 8000750:	08008000 	.word	0x08008000
+ 8000754:	0800ffff 	.word	0x0800ffff
+ 8000758:	0800c000 	.word	0x0800c000
+ 800075c:	0801ffff 	.word	0x0801ffff
+ 8000760:	0803ffff 	.word	0x0803ffff
+ 8000764:	0805ffff 	.word	0x0805ffff
+ 8000768:	0807ffff 	.word	0x0807ffff
+
+0800076c <flash_write_data>:
+
+
+uint32_t flash_write_data(uint32_t start_sect_addr,uint32_t *data, uint16_t numberofwords)
+{
+ 800076c:	b580      	push	{r7, lr}
+ 800076e:	b08e      	sub	sp, #56	; 0x38
+ 8000770:	af00      	add	r7, sp, #0
+ 8000772:	60f8      	str	r0, [r7, #12]
+ 8000774:	60b9      	str	r1, [r7, #8]
+ 8000776:	4613      	mov	r3, r2
+ 8000778:	80fb      	strh	r3, [r7, #6]
+	FLASH_EraseInitTypeDef EraseInitStruct;
+	uint32_t sect_err;
+	uint16_t write_count  = 0;
+ 800077a:	2300      	movs	r3, #0
+ 800077c:	86fb      	strh	r3, [r7, #54]	; 0x36
+
+	/*Unlock flash*/
+	flash_unlock();
+ 800077e:	f7ff ff4d 	bl	800061c <flash_unlock>
+
+	/*Get Number of sectors to erase starting from first sector*/
+	uint32_t start_sector =  get_sector(start_sect_addr);
+ 8000782:	68f8      	ldr	r0, [r7, #12]
+ 8000784:	f7ff ff78 	bl	8000678 <get_sector>
+ 8000788:	6338      	str	r0, [r7, #48]	; 0x30
+	uint32_t end_sect_addr =  start_sect_addr + numberofwords * 4;
+ 800078a:	88fb      	ldrh	r3, [r7, #6]
+ 800078c:	009b      	lsls	r3, r3, #2
+ 800078e:	461a      	mov	r2, r3
+ 8000790:	68fb      	ldr	r3, [r7, #12]
+ 8000792:	4413      	add	r3, r2
+ 8000794:	62fb      	str	r3, [r7, #44]	; 0x2c
+	uint32_t end_sector =  get_sector(end_sect_addr);
+ 8000796:	6af8      	ldr	r0, [r7, #44]	; 0x2c
+ 8000798:	f7ff ff6e 	bl	8000678 <get_sector>
+ 800079c:	62b8      	str	r0, [r7, #40]	; 0x28
+
+	/*Initialize EraseInit Struct*/
+	EraseInitStruct.TypeErase =  FLASH_TYPEERASE_SECTORS;
+ 800079e:	2300      	movs	r3, #0
+ 80007a0:	61bb      	str	r3, [r7, #24]
+	EraseInitStruct.VoltageRange = FLASH_VOLTAGE_RANGE_3;
+ 80007a2:	2302      	movs	r3, #2
+ 80007a4:	627b      	str	r3, [r7, #36]	; 0x24
+	EraseInitStruct.Sector       =  start_sector;
+ 80007a6:	6b3b      	ldr	r3, [r7, #48]	; 0x30
+ 80007a8:	61fb      	str	r3, [r7, #28]
+	EraseInitStruct.NbSectors    =  (end_sector - start_sector) + 1;
+ 80007aa:	6aba      	ldr	r2, [r7, #40]	; 0x28
+ 80007ac:	6b3b      	ldr	r3, [r7, #48]	; 0x30
+ 80007ae:	1ad3      	subs	r3, r2, r3
+ 80007b0:	3301      	adds	r3, #1
+ 80007b2:	623b      	str	r3, [r7, #32]
+
+	if(flash_ex_erase(&EraseInitStruct, &sect_err) != DEV_OK )
+ 80007b4:	f107 0214 	add.w	r2, r7, #20
+ 80007b8:	f107 0318 	add.w	r3, r7, #24
+ 80007bc:	4611      	mov	r1, r2
+ 80007be:	4618      	mov	r0, r3
+ 80007c0:	f7ff fd12 	bl	80001e8 <flash_ex_erase>
+ 80007c4:	4603      	mov	r3, r0
+ 80007c6:	2b00      	cmp	r3, #0
+ 80007c8:	d01d      	beq.n	8000806 <flash_write_data+0x9a>
+	{
+		return flash_get_error();
+ 80007ca:	f7ff ff49 	bl	8000660 <flash_get_error>
+ 80007ce:	4603      	mov	r3, r0
+ 80007d0:	e01e      	b.n	8000810 <flash_write_data+0xa4>
+	}
+
+	/*Program flash word-by-word*/
+	while(write_count < numberofwords )
+	{
+		if(flash_program(FLASH_TYPEPROGRAM_WORD, start_sect_addr,data[write_count]) == DEV_OK)
+ 80007d2:	8efb      	ldrh	r3, [r7, #54]	; 0x36
+ 80007d4:	009b      	lsls	r3, r3, #2
+ 80007d6:	68ba      	ldr	r2, [r7, #8]
+ 80007d8:	4413      	add	r3, r2
+ 80007da:	681b      	ldr	r3, [r3, #0]
+ 80007dc:	461a      	mov	r2, r3
+ 80007de:	f04f 0300 	mov.w	r3, #0
+ 80007e2:	68f9      	ldr	r1, [r7, #12]
+ 80007e4:	2002      	movs	r0, #2
+ 80007e6:	f7ff fdf3 	bl	80003d0 <flash_program>
+ 80007ea:	4603      	mov	r3, r0
+ 80007ec:	2b00      	cmp	r3, #0
+ 80007ee:	d106      	bne.n	80007fe <flash_write_data+0x92>
+		{
+			start_sect_addr += 4;
+ 80007f0:	68fb      	ldr	r3, [r7, #12]
+ 80007f2:	3304      	adds	r3, #4
+ 80007f4:	60fb      	str	r3, [r7, #12]
+			write_count++;
+ 80007f6:	8efb      	ldrh	r3, [r7, #54]	; 0x36
+ 80007f8:	3301      	adds	r3, #1
+ 80007fa:	86fb      	strh	r3, [r7, #54]	; 0x36
+ 80007fc:	e003      	b.n	8000806 <flash_write_data+0x9a>
+
+		}
+		else
+		{
+			return flash_get_error();
+ 80007fe:	f7ff ff2f 	bl	8000660 <flash_get_error>
+ 8000802:	4603      	mov	r3, r0
+ 8000804:	e004      	b.n	8000810 <flash_write_data+0xa4>
+	while(write_count < numberofwords )
+ 8000806:	8efa      	ldrh	r2, [r7, #54]	; 0x36
+ 8000808:	88fb      	ldrh	r3, [r7, #6]
+ 800080a:	429a      	cmp	r2, r3
+ 800080c:	d3e1      	bcc.n	80007d2 <flash_write_data+0x66>
+
+		}
+	}
+
+	return 0;
+ 800080e:	2300      	movs	r3, #0
+}
+ 8000810:	4618      	mov	r0, r3
+ 8000812:	3738      	adds	r7, #56	; 0x38
+ 8000814:	46bd      	mov	sp, r7
+ 8000816:	bd80      	pop	{r7, pc}
+
+08000818 <flash_read_data>:
+
+
+
+
+void flash_read_data(uint32_t start_sect_addr, uint32_t *rx_buff, uint16_t numberofwords)
+{
+ 8000818:	b480      	push	{r7}
+ 800081a:	b085      	sub	sp, #20
+ 800081c:	af00      	add	r7, sp, #0
+ 800081e:	60f8      	str	r0, [r7, #12]
+ 8000820:	60b9      	str	r1, [r7, #8]
+ 8000822:	4613      	mov	r3, r2
+ 8000824:	80fb      	strh	r3, [r7, #6]
+
+	while(1)
+	{
+		*rx_buff  =  *(__IO uint32_t *)start_sect_addr;
+ 8000826:	68fb      	ldr	r3, [r7, #12]
+ 8000828:	681a      	ldr	r2, [r3, #0]
+ 800082a:	68bb      	ldr	r3, [r7, #8]
+ 800082c:	601a      	str	r2, [r3, #0]
+		start_sect_addr +=4;
+ 800082e:	68fb      	ldr	r3, [r7, #12]
+ 8000830:	3304      	adds	r3, #4
+ 8000832:	60fb      	str	r3, [r7, #12]
+		rx_buff++;
+ 8000834:	68bb      	ldr	r3, [r7, #8]
+ 8000836:	3304      	adds	r3, #4
+ 8000838:	60bb      	str	r3, [r7, #8]
+		if(!(numberofwords--))
+ 800083a:	88fb      	ldrh	r3, [r7, #6]
+ 800083c:	1e5a      	subs	r2, r3, #1
+ 800083e:	80fa      	strh	r2, [r7, #6]
+ 8000840:	2b00      	cmp	r3, #0
+ 8000842:	d000      	beq.n	8000846 <flash_read_data+0x2e>
+		*rx_buff  =  *(__IO uint32_t *)start_sect_addr;
+ 8000844:	e7ef      	b.n	8000826 <flash_read_data+0xe>
+		{
+			break;
+ 8000846:	bf00      	nop
+		}
+
+
+	}
+
+}
+ 8000848:	bf00      	nop
+ 800084a:	3714      	adds	r7, #20
+ 800084c:	46bd      	mov	sp, r7
+ 800084e:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 8000852:	4770      	bx	lr
+
+08000854 <float_to_bytes>:
+
+void float_to_bytes(uint8_t * rsult_buff, float value)
+{
+ 8000854:	b480      	push	{r7}
+ 8000856:	b085      	sub	sp, #20
+ 8000858:	af00      	add	r7, sp, #0
+ 800085a:	6078      	str	r0, [r7, #4]
+ 800085c:	ed87 0a00 	vstr	s0, [r7]
+	union{
+		float float_value;
+		uint8_t bytes_value[4];
+	}data_t;
+
+	data_t.float_value = value;
+ 8000860:	683b      	ldr	r3, [r7, #0]
+ 8000862:	60bb      	str	r3, [r7, #8]
+
+	for( int i = 0; i < 4; i++)
+ 8000864:	2300      	movs	r3, #0
+ 8000866:	60fb      	str	r3, [r7, #12]
+ 8000868:	e00b      	b.n	8000882 <float_to_bytes+0x2e>
+	{
+		rsult_buff[i] = data_t.bytes_value[i];
+ 800086a:	68fb      	ldr	r3, [r7, #12]
+ 800086c:	687a      	ldr	r2, [r7, #4]
+ 800086e:	4413      	add	r3, r2
+ 8000870:	f107 0108 	add.w	r1, r7, #8
+ 8000874:	68fa      	ldr	r2, [r7, #12]
+ 8000876:	440a      	add	r2, r1
+ 8000878:	7812      	ldrb	r2, [r2, #0]
+ 800087a:	701a      	strb	r2, [r3, #0]
+	for( int i = 0; i < 4; i++)
+ 800087c:	68fb      	ldr	r3, [r7, #12]
+ 800087e:	3301      	adds	r3, #1
+ 8000880:	60fb      	str	r3, [r7, #12]
+ 8000882:	68fb      	ldr	r3, [r7, #12]
+ 8000884:	2b03      	cmp	r3, #3
+ 8000886:	ddf0      	ble.n	800086a <float_to_bytes+0x16>
+	}
+
+}
+ 8000888:	bf00      	nop
+ 800088a:	bf00      	nop
+ 800088c:	3714      	adds	r7, #20
+ 800088e:	46bd      	mov	sp, r7
+ 8000890:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 8000894:	4770      	bx	lr
+
+08000896 <bytes_to_float>:
+
+float bytes_to_float(uint8_t * value)
+{
+ 8000896:	b480      	push	{r7}
+ 8000898:	b087      	sub	sp, #28
+ 800089a:	af00      	add	r7, sp, #0
+ 800089c:	6078      	str	r0, [r7, #4]
+	union{
+		float float_value;
+		uint8_t bytes_value[4];
+	}data_t;
+
+	for(int i = 0; i < 4; i++)
+ 800089e:	2300      	movs	r3, #0
+ 80008a0:	617b      	str	r3, [r7, #20]
+ 80008a2:	e00c      	b.n	80008be <bytes_to_float+0x28>
+	{
+		data_t.bytes_value[i] =  value[i];
+ 80008a4:	697b      	ldr	r3, [r7, #20]
+ 80008a6:	687a      	ldr	r2, [r7, #4]
+ 80008a8:	4413      	add	r3, r2
+ 80008aa:	7819      	ldrb	r1, [r3, #0]
+ 80008ac:	f107 020c 	add.w	r2, r7, #12
+ 80008b0:	697b      	ldr	r3, [r7, #20]
+ 80008b2:	4413      	add	r3, r2
+ 80008b4:	460a      	mov	r2, r1
+ 80008b6:	701a      	strb	r2, [r3, #0]
+	for(int i = 0; i < 4; i++)
+ 80008b8:	697b      	ldr	r3, [r7, #20]
+ 80008ba:	3301      	adds	r3, #1
+ 80008bc:	617b      	str	r3, [r7, #20]
+ 80008be:	697b      	ldr	r3, [r7, #20]
+ 80008c0:	2b03      	cmp	r3, #3
+ 80008c2:	ddef      	ble.n	80008a4 <bytes_to_float+0xe>
+	}
+
+	result =  data_t.float_value;
+ 80008c4:	68fb      	ldr	r3, [r7, #12]
+ 80008c6:	613b      	str	r3, [r7, #16]
+
+	return result;
+ 80008c8:	693b      	ldr	r3, [r7, #16]
+ 80008ca:	ee07 3a90 	vmov	s15, r3
+}
+ 80008ce:	eeb0 0a67 	vmov.f32	s0, s15
+ 80008d2:	371c      	adds	r7, #28
+ 80008d4:	46bd      	mov	sp, r7
+ 80008d6:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 80008da:	4770      	bx	lr
+
+080008dc <get_str>:
+
+ void get_str(uint32_t *src_data, char *dest_buff)
+ {
+ 80008dc:	b590      	push	{r4, r7, lr}
+ 80008de:	b087      	sub	sp, #28
+ 80008e0:	af00      	add	r7, sp, #0
+ 80008e2:	6078      	str	r0, [r7, #4]
+ 80008e4:	6039      	str	r1, [r7, #0]
+
+	 int numberofbytes =  ((strlen((char *)src_data)/4) + ((strlen((char *)src_data) %4) != 0))*4;
+ 80008e6:	6878      	ldr	r0, [r7, #4]
+ 80008e8:	f7ff fc76 	bl	80001d8 <strlen>
+ 80008ec:	4603      	mov	r3, r0
+ 80008ee:	089c      	lsrs	r4, r3, #2
+ 80008f0:	6878      	ldr	r0, [r7, #4]
+ 80008f2:	f7ff fc71 	bl	80001d8 <strlen>
+ 80008f6:	4603      	mov	r3, r0
+ 80008f8:	f003 0303 	and.w	r3, r3, #3
+ 80008fc:	2b00      	cmp	r3, #0
+ 80008fe:	bf14      	ite	ne
+ 8000900:	2301      	movne	r3, #1
+ 8000902:	2300      	moveq	r3, #0
+ 8000904:	b2db      	uxtb	r3, r3
+ 8000906:	4423      	add	r3, r4
+ 8000908:	009b      	lsls	r3, r3, #2
+ 800090a:	613b      	str	r3, [r7, #16]
+
+	for( int i = 0 ; i < numberofbytes; i++ )
+ 800090c:	2300      	movs	r3, #0
+ 800090e:	617b      	str	r3, [r7, #20]
+ 8000910:	e017      	b.n	8000942 <get_str+0x66>
+	{
+		int word_idx =  i / sizeof(uint32_t);
+ 8000912:	697b      	ldr	r3, [r7, #20]
+ 8000914:	089b      	lsrs	r3, r3, #2
+ 8000916:	60fb      	str	r3, [r7, #12]
+		int byte_idx =  i % sizeof(uint32_t);
+ 8000918:	697b      	ldr	r3, [r7, #20]
+ 800091a:	f003 0303 	and.w	r3, r3, #3
+ 800091e:	60bb      	str	r3, [r7, #8]
+
+		dest_buff[i] =  (src_data[word_idx] >> (8 * byte_idx)) & 0xff;
+ 8000920:	68fb      	ldr	r3, [r7, #12]
+ 8000922:	009b      	lsls	r3, r3, #2
+ 8000924:	687a      	ldr	r2, [r7, #4]
+ 8000926:	4413      	add	r3, r2
+ 8000928:	681a      	ldr	r2, [r3, #0]
+ 800092a:	68bb      	ldr	r3, [r7, #8]
+ 800092c:	00db      	lsls	r3, r3, #3
+ 800092e:	fa22 f103 	lsr.w	r1, r2, r3
+ 8000932:	697b      	ldr	r3, [r7, #20]
+ 8000934:	683a      	ldr	r2, [r7, #0]
+ 8000936:	4413      	add	r3, r2
+ 8000938:	b2ca      	uxtb	r2, r1
+ 800093a:	701a      	strb	r2, [r3, #0]
+	for( int i = 0 ; i < numberofbytes; i++ )
+ 800093c:	697b      	ldr	r3, [r7, #20]
+ 800093e:	3301      	adds	r3, #1
+ 8000940:	617b      	str	r3, [r7, #20]
+ 8000942:	697a      	ldr	r2, [r7, #20]
+ 8000944:	693b      	ldr	r3, [r7, #16]
+ 8000946:	429a      	cmp	r2, r3
+ 8000948:	dbe3      	blt.n	8000912 <get_str+0x36>
+	}
+ }
+ 800094a:	bf00      	nop
+ 800094c:	bf00      	nop
+ 800094e:	371c      	adds	r7, #28
+ 8000950:	46bd      	mov	sp, r7
+ 8000952:	bd90      	pop	{r4, r7, pc}
+
+08000954 <flash_write_num>:
+
+
+ void flash_write_num(uint32_t start_sect_addr, float num)
+ {
+ 8000954:	b580      	push	{r7, lr}
+ 8000956:	b082      	sub	sp, #8
+ 8000958:	af00      	add	r7, sp, #0
+ 800095a:	6078      	str	r0, [r7, #4]
+ 800095c:	ed87 0a00 	vstr	s0, [r7]
+	 float_to_bytes(temp_buff, num);
+ 8000960:	ed97 0a00 	vldr	s0, [r7]
+ 8000964:	4805      	ldr	r0, [pc, #20]	; (800097c <flash_write_num+0x28>)
+ 8000966:	f7ff ff75 	bl	8000854 <float_to_bytes>
+	 flash_write_data(start_sect_addr,(uint32_t *)temp_buff, 1);
+ 800096a:	2201      	movs	r2, #1
+ 800096c:	4903      	ldr	r1, [pc, #12]	; (800097c <flash_write_num+0x28>)
+ 800096e:	6878      	ldr	r0, [r7, #4]
+ 8000970:	f7ff fefc 	bl	800076c <flash_write_data>
+ }
+ 8000974:	bf00      	nop
+ 8000976:	3708      	adds	r7, #8
+ 8000978:	46bd      	mov	sp, r7
+ 800097a:	bd80      	pop	{r7, pc}
+ 800097c:	20000050 	.word	0x20000050
+
+08000980 <flash_read_num>:
+
+ float flash_read_num(uint32_t start_sect_addr)
+ {
+ 8000980:	b580      	push	{r7, lr}
+ 8000982:	b084      	sub	sp, #16
+ 8000984:	af00      	add	r7, sp, #0
+ 8000986:	6078      	str	r0, [r7, #4]
+	 uint8_t buff[4];
+	 float value;
+	 flash_read_data(start_sect_addr,(uint32_t *)buff,1);
+ 8000988:	f107 0308 	add.w	r3, r7, #8
+ 800098c:	2201      	movs	r2, #1
+ 800098e:	4619      	mov	r1, r3
+ 8000990:	6878      	ldr	r0, [r7, #4]
+ 8000992:	f7ff ff41 	bl	8000818 <flash_read_data>
+	 value =  bytes_to_float(buff);
+ 8000996:	f107 0308 	add.w	r3, r7, #8
+ 800099a:	4618      	mov	r0, r3
+ 800099c:	f7ff ff7b 	bl	8000896 <bytes_to_float>
+ 80009a0:	ed87 0a03 	vstr	s0, [r7, #12]
+
+	 return value;
+ 80009a4:	68fb      	ldr	r3, [r7, #12]
+ 80009a6:	ee07 3a90 	vmov	s15, r3
+ }
+ 80009aa:	eeb0 0a67 	vmov.f32	s0, s15
+ 80009ae:	3710      	adds	r7, #16
+ 80009b0:	46bd      	mov	sp, r7
+ 80009b2:	bd80      	pop	{r7, pc}
+
+080009b4 <flash_obytes_get_wrp>:
+
+#define START_OF_WRP_BYTE		16
+#define START_OF_RDP_BYTE		8
+
+uint8_t flash_obytes_get_wrp(void)
+{
+ 80009b4:	b480      	push	{r7}
+ 80009b6:	af00      	add	r7, sp, #0
+	return (*(__IO uint8_t *)(OPTCR_BYTE2_ADDRESS));
+ 80009b8:	4b03      	ldr	r3, [pc, #12]	; (80009c8 <flash_obytes_get_wrp+0x14>)
+ 80009ba:	781b      	ldrb	r3, [r3, #0]
+ 80009bc:	b2db      	uxtb	r3, r3
+}
+ 80009be:	4618      	mov	r0, r3
+ 80009c0:	46bd      	mov	sp, r7
+ 80009c2:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 80009c6:	4770      	bx	lr
+ 80009c8:	40023c16 	.word	0x40023c16
+
+080009cc <flash_obytes_get_rdp>:
+
+uint8_t flash_obytes_get_rdp(void)
+{
+ 80009cc:	b480      	push	{r7}
+ 80009ce:	af00      	add	r7, sp, #0
+	return (*(__IO uint8_t *)(OPTCR_BYTE1_ADDRESS));
+ 80009d0:	4b03      	ldr	r3, [pc, #12]	; (80009e0 <flash_obytes_get_rdp+0x14>)
+ 80009d2:	781b      	ldrb	r3, [r3, #0]
+ 80009d4:	b2db      	uxtb	r3, r3
+
+}
+ 80009d6:	4618      	mov	r0, r3
+ 80009d8:	46bd      	mov	sp, r7
+ 80009da:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 80009de:	4770      	bx	lr
+ 80009e0:	40023c15 	.word	0x40023c15
+
+080009e4 <flash_obytes_get_user>:
+
+/*User bots WDG_SW, RST_STOP, RST_STDBY*/
+uint8_t flash_obytes_get_user(void)
+{
+ 80009e4:	b480      	push	{r7}
+ 80009e6:	af00      	add	r7, sp, #0
+	return ((uint8_t)(FLASH->OPTCR & 0xE0));
+ 80009e8:	4b05      	ldr	r3, [pc, #20]	; (8000a00 <flash_obytes_get_user+0x1c>)
+ 80009ea:	695b      	ldr	r3, [r3, #20]
+ 80009ec:	b2db      	uxtb	r3, r3
+ 80009ee:	f023 031f 	bic.w	r3, r3, #31
+ 80009f2:	b2db      	uxtb	r3, r3
+}
+ 80009f4:	4618      	mov	r0, r3
+ 80009f6:	46bd      	mov	sp, r7
+ 80009f8:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 80009fc:	4770      	bx	lr
+ 80009fe:	bf00      	nop
+ 8000a00:	40023c00 	.word	0x40023c00
+
+08000a04 <flash_obytes_get_bor>:
+
+
+uint8_t flash_obytes_get_bor(void)
+{
+ 8000a04:	b480      	push	{r7}
+ 8000a06:	af00      	add	r7, sp, #0
+	return ((uint8_t)(FLASH->OPTCR & 0x0C));
+ 8000a08:	4b05      	ldr	r3, [pc, #20]	; (8000a20 <flash_obytes_get_bor+0x1c>)
+ 8000a0a:	695b      	ldr	r3, [r3, #20]
+ 8000a0c:	b2db      	uxtb	r3, r3
+ 8000a0e:	f003 030c 	and.w	r3, r3, #12
+ 8000a12:	b2db      	uxtb	r3, r3
+
+}
+ 8000a14:	4618      	mov	r0, r3
+ 8000a16:	46bd      	mov	sp, r7
+ 8000a18:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 8000a1c:	4770      	bx	lr
+ 8000a1e:	bf00      	nop
+ 8000a20:	40023c00 	.word	0x40023c00
+
+08000a24 <flash_obytes_lock>:
+
+DEV_StatusTypeDef flash_obytes_lock(void)
+{
+ 8000a24:	b480      	push	{r7}
+ 8000a26:	af00      	add	r7, sp, #0
+	FLASH->OPTCR |= FLASH_OPTCR_OPTLOCK;
+ 8000a28:	4b05      	ldr	r3, [pc, #20]	; (8000a40 <flash_obytes_lock+0x1c>)
+ 8000a2a:	695b      	ldr	r3, [r3, #20]
+ 8000a2c:	4a04      	ldr	r2, [pc, #16]	; (8000a40 <flash_obytes_lock+0x1c>)
+ 8000a2e:	f043 0301 	orr.w	r3, r3, #1
+ 8000a32:	6153      	str	r3, [r2, #20]
+
+	return DEV_OK;
+ 8000a34:	2300      	movs	r3, #0
+}
+ 8000a36:	4618      	mov	r0, r3
+ 8000a38:	46bd      	mov	sp, r7
+ 8000a3a:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 8000a3e:	4770      	bx	lr
+ 8000a40:	40023c00 	.word	0x40023c00
+
+08000a44 <flash_obytes_unlock>:
+
+DEV_StatusTypeDef flash_obytes_unlock(void)
+{
+ 8000a44:	b480      	push	{r7}
+ 8000a46:	af00      	add	r7, sp, #0
+	if(( FLASH->OPTCR & FLASH_OPTCR_OPTLOCK) != RESET)
+ 8000a48:	4b09      	ldr	r3, [pc, #36]	; (8000a70 <flash_obytes_unlock+0x2c>)
+ 8000a4a:	695b      	ldr	r3, [r3, #20]
+ 8000a4c:	f003 0301 	and.w	r3, r3, #1
+ 8000a50:	2b00      	cmp	r3, #0
+ 8000a52:	d007      	beq.n	8000a64 <flash_obytes_unlock+0x20>
+	{
+		FLASH->OPTKEYR = FLASH_OPT_KEY1;
+ 8000a54:	4b06      	ldr	r3, [pc, #24]	; (8000a70 <flash_obytes_unlock+0x2c>)
+ 8000a56:	4a07      	ldr	r2, [pc, #28]	; (8000a74 <flash_obytes_unlock+0x30>)
+ 8000a58:	609a      	str	r2, [r3, #8]
+		FLASH->OPTKEYR = FLASH_OPT_KEY2;
+ 8000a5a:	4b05      	ldr	r3, [pc, #20]	; (8000a70 <flash_obytes_unlock+0x2c>)
+ 8000a5c:	4a06      	ldr	r2, [pc, #24]	; (8000a78 <flash_obytes_unlock+0x34>)
+ 8000a5e:	609a      	str	r2, [r3, #8]
+	else
+	{
+		return DEV_ERROR;
+	}
+
+	return DEV_OK;
+ 8000a60:	2300      	movs	r3, #0
+ 8000a62:	e000      	b.n	8000a66 <flash_obytes_unlock+0x22>
+		return DEV_ERROR;
+ 8000a64:	2301      	movs	r3, #1
+}
+ 8000a66:	4618      	mov	r0, r3
+ 8000a68:	46bd      	mov	sp, r7
+ 8000a6a:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 8000a6e:	4770      	bx	lr
+ 8000a70:	40023c00 	.word	0x40023c00
+ 8000a74:	08192a3b 	.word	0x08192a3b
+ 8000a78:	4c5d6e7f 	.word	0x4c5d6e7f
+
+08000a7c <sector_set_wrp>:
+
+void sector_set_wrp(sector_wrp_mask sector_num)
+{
+ 8000a7c:	b580      	push	{r7, lr}
+ 8000a7e:	b082      	sub	sp, #8
+ 8000a80:	af00      	add	r7, sp, #0
+ 8000a82:	4603      	mov	r3, r0
+ 8000a84:	71fb      	strb	r3, [r7, #7]
+
+
+	/*Unlock option byte*/
+	flash_obytes_unlock();
+ 8000a86:	f7ff ffdd 	bl	8000a44 <flash_obytes_unlock>
+
+	/*Make sure flash is not busy*/
+	while(FLASH_GET_FLAG(FLASH_SR_BSY) != RESET){}
+ 8000a8a:	bf00      	nop
+ 8000a8c:	4b13      	ldr	r3, [pc, #76]	; (8000adc <sector_set_wrp+0x60>)
+ 8000a8e:	68db      	ldr	r3, [r3, #12]
+ 8000a90:	f403 3380 	and.w	r3, r3, #65536	; 0x10000
+ 8000a94:	2b00      	cmp	r3, #0
+ 8000a96:	d1f9      	bne.n	8000a8c <sector_set_wrp+0x10>
+
+	/*Enable WRPi by setting SPRMOD to 0*/
+	FLASH->OPTCR &=~(1U<<31);
+ 8000a98:	4b10      	ldr	r3, [pc, #64]	; (8000adc <sector_set_wrp+0x60>)
+ 8000a9a:	695b      	ldr	r3, [r3, #20]
+ 8000a9c:	4a0f      	ldr	r2, [pc, #60]	; (8000adc <sector_set_wrp+0x60>)
+ 8000a9e:	f023 4300 	bic.w	r3, r3, #2147483648	; 0x80000000
+ 8000aa2:	6153      	str	r3, [r2, #20]
+
+	/*Set WRP for desired sector*/
+	FLASH->OPTCR &=~(sector_num << START_OF_WRP_BYTE);
+ 8000aa4:	4b0d      	ldr	r3, [pc, #52]	; (8000adc <sector_set_wrp+0x60>)
+ 8000aa6:	695b      	ldr	r3, [r3, #20]
+ 8000aa8:	79fa      	ldrb	r2, [r7, #7]
+ 8000aaa:	0412      	lsls	r2, r2, #16
+ 8000aac:	43d2      	mvns	r2, r2
+ 8000aae:	4611      	mov	r1, r2
+ 8000ab0:	4a0a      	ldr	r2, [pc, #40]	; (8000adc <sector_set_wrp+0x60>)
+ 8000ab2:	400b      	ands	r3, r1
+ 8000ab4:	6153      	str	r3, [r2, #20]
+
+	/*Enable OPTSTART*/
+	FLASH->OPTCR |=(1U<<1);
+ 8000ab6:	4b09      	ldr	r3, [pc, #36]	; (8000adc <sector_set_wrp+0x60>)
+ 8000ab8:	695b      	ldr	r3, [r3, #20]
+ 8000aba:	4a08      	ldr	r2, [pc, #32]	; (8000adc <sector_set_wrp+0x60>)
+ 8000abc:	f043 0302 	orr.w	r3, r3, #2
+ 8000ac0:	6153      	str	r3, [r2, #20]
+
+	/*Make sure flash is not busy*/
+	while(FLASH_GET_FLAG(FLASH_SR_BSY) != RESET){}
+ 8000ac2:	bf00      	nop
+ 8000ac4:	4b05      	ldr	r3, [pc, #20]	; (8000adc <sector_set_wrp+0x60>)
+ 8000ac6:	68db      	ldr	r3, [r3, #12]
+ 8000ac8:	f403 3380 	and.w	r3, r3, #65536	; 0x10000
+ 8000acc:	2b00      	cmp	r3, #0
+ 8000ace:	d1f9      	bne.n	8000ac4 <sector_set_wrp+0x48>
+
+	flash_obytes_lock();
+ 8000ad0:	f7ff ffa8 	bl	8000a24 <flash_obytes_lock>
+}
+ 8000ad4:	bf00      	nop
+ 8000ad6:	3708      	adds	r7, #8
+ 8000ad8:	46bd      	mov	sp, r7
+ 8000ada:	bd80      	pop	{r7, pc}
+ 8000adc:	40023c00 	.word	0x40023c00
+
+08000ae0 <dis_wrp_all_sectors>:
+
+
+void dis_wrp_all_sectors(void)
+{
+ 8000ae0:	b580      	push	{r7, lr}
+ 8000ae2:	af00      	add	r7, sp, #0
+
+	/*Unlock option byte*/
+	flash_obytes_unlock();
+ 8000ae4:	f7ff ffae 	bl	8000a44 <flash_obytes_unlock>
+
+	/*Make sure flash is not busy*/
+	while(FLASH_GET_FLAG(FLASH_SR_BSY) != RESET){}
+ 8000ae8:	bf00      	nop
+ 8000aea:	4b11      	ldr	r3, [pc, #68]	; (8000b30 <dis_wrp_all_sectors+0x50>)
+ 8000aec:	68db      	ldr	r3, [r3, #12]
+ 8000aee:	f403 3380 	and.w	r3, r3, #65536	; 0x10000
+ 8000af2:	2b00      	cmp	r3, #0
+ 8000af4:	d1f9      	bne.n	8000aea <dis_wrp_all_sectors+0xa>
+
+	/*Enable WRPi by setting SPRMOD to 0*/
+	FLASH->OPTCR &=~(1U<<31);
+ 8000af6:	4b0e      	ldr	r3, [pc, #56]	; (8000b30 <dis_wrp_all_sectors+0x50>)
+ 8000af8:	695b      	ldr	r3, [r3, #20]
+ 8000afa:	4a0d      	ldr	r2, [pc, #52]	; (8000b30 <dis_wrp_all_sectors+0x50>)
+ 8000afc:	f023 4300 	bic.w	r3, r3, #2147483648	; 0x80000000
+ 8000b00:	6153      	str	r3, [r2, #20]
+
+	/*Set WRP for desired sector*/
+	FLASH->OPTCR |= (0xFF << START_OF_WRP_BYTE);
+ 8000b02:	4b0b      	ldr	r3, [pc, #44]	; (8000b30 <dis_wrp_all_sectors+0x50>)
+ 8000b04:	695b      	ldr	r3, [r3, #20]
+ 8000b06:	4a0a      	ldr	r2, [pc, #40]	; (8000b30 <dis_wrp_all_sectors+0x50>)
+ 8000b08:	f443 037f 	orr.w	r3, r3, #16711680	; 0xff0000
+ 8000b0c:	6153      	str	r3, [r2, #20]
+
+	/*Enable OPTSTART*/
+	FLASH->OPTCR |=(1U<<1);
+ 8000b0e:	4b08      	ldr	r3, [pc, #32]	; (8000b30 <dis_wrp_all_sectors+0x50>)
+ 8000b10:	695b      	ldr	r3, [r3, #20]
+ 8000b12:	4a07      	ldr	r2, [pc, #28]	; (8000b30 <dis_wrp_all_sectors+0x50>)
+ 8000b14:	f043 0302 	orr.w	r3, r3, #2
+ 8000b18:	6153      	str	r3, [r2, #20]
+
+	/*Make sure flash is not busy*/
+	while(FLASH_GET_FLAG(FLASH_SR_BSY) != RESET){}
+ 8000b1a:	bf00      	nop
+ 8000b1c:	4b04      	ldr	r3, [pc, #16]	; (8000b30 <dis_wrp_all_sectors+0x50>)
+ 8000b1e:	68db      	ldr	r3, [r3, #12]
+ 8000b20:	f403 3380 	and.w	r3, r3, #65536	; 0x10000
+ 8000b24:	2b00      	cmp	r3, #0
+ 8000b26:	d1f9      	bne.n	8000b1c <dis_wrp_all_sectors+0x3c>
+
+	flash_obytes_lock();
+ 8000b28:	f7ff ff7c 	bl	8000a24 <flash_obytes_lock>
+}
+ 8000b2c:	bf00      	nop
+ 8000b2e:	bd80      	pop	{r7, pc}
+ 8000b30:	40023c00 	.word	0x40023c00
+
+08000b34 <flash_obytes_get_config>:
+	flash_obytes_lock();
+}
+
+
+void flash_obytes_get_config(FLASH_OBProgramInitTypeDef *curr_obytes)
+{
+ 8000b34:	b580      	push	{r7, lr}
+ 8000b36:	b082      	sub	sp, #8
+ 8000b38:	af00      	add	r7, sp, #0
+ 8000b3a:	6078      	str	r0, [r7, #4]
+	curr_obytes->WRPSector = (uint8_t) flash_obytes_get_wrp();
+ 8000b3c:	f7ff ff3a 	bl	80009b4 <flash_obytes_get_wrp>
+ 8000b40:	4603      	mov	r3, r0
+ 8000b42:	461a      	mov	r2, r3
+ 8000b44:	687b      	ldr	r3, [r7, #4]
+ 8000b46:	601a      	str	r2, [r3, #0]
+	curr_obytes->RDPLevel  =  (uint8_t) flash_obytes_get_rdp();
+ 8000b48:	f7ff ff40 	bl	80009cc <flash_obytes_get_rdp>
+ 8000b4c:	4603      	mov	r3, r0
+ 8000b4e:	461a      	mov	r2, r3
+ 8000b50:	687b      	ldr	r3, [r7, #4]
+ 8000b52:	605a      	str	r2, [r3, #4]
+	curr_obytes->USERConfig =  (uint8_t) flash_obytes_get_user();
+ 8000b54:	f7ff ff46 	bl	80009e4 <flash_obytes_get_user>
+ 8000b58:	4603      	mov	r3, r0
+ 8000b5a:	461a      	mov	r2, r3
+ 8000b5c:	687b      	ldr	r3, [r7, #4]
+ 8000b5e:	60da      	str	r2, [r3, #12]
+	curr_obytes->BORLevel   = (uint8_t) flash_obytes_get_bor();
+ 8000b60:	f7ff ff50 	bl	8000a04 <flash_obytes_get_bor>
+ 8000b64:	4603      	mov	r3, r0
+ 8000b66:	461a      	mov	r2, r3
+ 8000b68:	687b      	ldr	r3, [r7, #4]
+ 8000b6a:	609a      	str	r2, [r3, #8]
+}
+ 8000b6c:	bf00      	nop
+ 8000b6e:	3708      	adds	r7, #8
+ 8000b70:	46bd      	mov	sp, r7
+ 8000b72:	bd80      	pop	{r7, pc}
+
+08000b74 <fpu_enable>:
+#include "stm32f4xx.h"
+
+
+
+void fpu_enable(void)
+{
+ 8000b74:	b480      	push	{r7}
+ 8000b76:	af00      	add	r7, sp, #0
+	/*Enable floating point unit:  Enable CP10 and CP11 full access*/
+	SCB->CPACR |=(1<<20);
+ 8000b78:	4b12      	ldr	r3, [pc, #72]	; (8000bc4 <fpu_enable+0x50>)
+ 8000b7a:	f8d3 3088 	ldr.w	r3, [r3, #136]	; 0x88
+ 8000b7e:	4a11      	ldr	r2, [pc, #68]	; (8000bc4 <fpu_enable+0x50>)
+ 8000b80:	f443 1380 	orr.w	r3, r3, #1048576	; 0x100000
+ 8000b84:	f8c2 3088 	str.w	r3, [r2, #136]	; 0x88
+	SCB->CPACR |=(1<<21);
+ 8000b88:	4b0e      	ldr	r3, [pc, #56]	; (8000bc4 <fpu_enable+0x50>)
+ 8000b8a:	f8d3 3088 	ldr.w	r3, [r3, #136]	; 0x88
+ 8000b8e:	4a0d      	ldr	r2, [pc, #52]	; (8000bc4 <fpu_enable+0x50>)
+ 8000b90:	f443 1300 	orr.w	r3, r3, #2097152	; 0x200000
+ 8000b94:	f8c2 3088 	str.w	r3, [r2, #136]	; 0x88
+	SCB->CPACR |=(1<<22);
+ 8000b98:	4b0a      	ldr	r3, [pc, #40]	; (8000bc4 <fpu_enable+0x50>)
+ 8000b9a:	f8d3 3088 	ldr.w	r3, [r3, #136]	; 0x88
+ 8000b9e:	4a09      	ldr	r2, [pc, #36]	; (8000bc4 <fpu_enable+0x50>)
+ 8000ba0:	f443 0380 	orr.w	r3, r3, #4194304	; 0x400000
+ 8000ba4:	f8c2 3088 	str.w	r3, [r2, #136]	; 0x88
+	SCB->CPACR |=(1<<23);
+ 8000ba8:	4b06      	ldr	r3, [pc, #24]	; (8000bc4 <fpu_enable+0x50>)
+ 8000baa:	f8d3 3088 	ldr.w	r3, [r3, #136]	; 0x88
+ 8000bae:	4a05      	ldr	r2, [pc, #20]	; (8000bc4 <fpu_enable+0x50>)
+ 8000bb0:	f443 0300 	orr.w	r3, r3, #8388608	; 0x800000
+ 8000bb4:	f8c2 3088 	str.w	r3, [r2, #136]	; 0x88
+
+}
+ 8000bb8:	bf00      	nop
+ 8000bba:	46bd      	mov	sp, r7
+ 8000bbc:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 8000bc0:	4770      	bx	lr
+ 8000bc2:	bf00      	nop
+ 8000bc4:	e000ed00 	.word	0xe000ed00
+
+08000bc8 <main>:
+
+uint8_t flash_setting;
+
+FLASH_OBProgramInitTypeDef all_obytes_setting;
+int main()
+{
+ 8000bc8:	b598      	push	{r3, r4, r7, lr}
+ 8000bca:	af00      	add	r7, sp, #0
+	/*Enable FPU*/
+	fpu_enable();
+ 8000bcc:	f7ff ffd2 	bl	8000b74 <fpu_enable>
+
+	/*Initialize debug UART*/
+	debug_uart_init();
+ 8000bd0:	f000 f936 	bl	8000e40 <debug_uart_init>
+
+	/*Initialize timebase*/
+	timebase_init();
+ 8000bd4:	f000 f90a 	bl	8000dec <timebase_init>
+
+	 /*IMPORTANT :  Wait 10ms*/
+	  delay(500);
+ 8000bd8:	f44f 70fa 	mov.w	r0, #500	; 0x1f4
+ 8000bdc:	f000 f8c3 	bl	8000d66 <delay>
+
+    /*Write data*/
+    flash_write_data(0x08060000,(uint32_t *)buff_data_to_store, BUFF_SIZE);
+ 8000be0:	220a      	movs	r2, #10
+ 8000be2:	4944      	ldr	r1, [pc, #272]	; (8000cf4 <main+0x12c>)
+ 8000be4:	4844      	ldr	r0, [pc, #272]	; (8000cf8 <main+0x130>)
+ 8000be6:	f7ff fdc1 	bl	800076c <flash_write_data>
+
+   /*Read data*/
+    flash_read_data(0x08060000,buff_rcv_data,BUFF_SIZE);
+ 8000bea:	220a      	movs	r2, #10
+ 8000bec:	4943      	ldr	r1, [pc, #268]	; (8000cfc <main+0x134>)
+ 8000bee:	4842      	ldr	r0, [pc, #264]	; (8000cf8 <main+0x130>)
+ 8000bf0:	f7ff fe12 	bl	8000818 <flash_read_data>
+
+    /*Write data*/
+    flash_write_data(0x08040000,(uint32_t *)pbuff_test_string, get_word_length(pbuff_test_string));
+ 8000bf4:	4b42      	ldr	r3, [pc, #264]	; (8000d00 <main+0x138>)
+ 8000bf6:	681c      	ldr	r4, [r3, #0]
+ 8000bf8:	4b41      	ldr	r3, [pc, #260]	; (8000d00 <main+0x138>)
+ 8000bfa:	681b      	ldr	r3, [r3, #0]
+ 8000bfc:	4618      	mov	r0, r3
+ 8000bfe:	f000 f897 	bl	8000d30 <get_word_length>
+ 8000c02:	4603      	mov	r3, r0
+ 8000c04:	b29b      	uxth	r3, r3
+ 8000c06:	461a      	mov	r2, r3
+ 8000c08:	4621      	mov	r1, r4
+ 8000c0a:	483e      	ldr	r0, [pc, #248]	; (8000d04 <main+0x13c>)
+ 8000c0c:	f7ff fdae 	bl	800076c <flash_write_data>
+
+    /*Read data*/
+    flash_read_data(0x08040000,buff_rcv_data,get_word_length(pbuff_test_string));
+ 8000c10:	4b3b      	ldr	r3, [pc, #236]	; (8000d00 <main+0x138>)
+ 8000c12:	681b      	ldr	r3, [r3, #0]
+ 8000c14:	4618      	mov	r0, r3
+ 8000c16:	f000 f88b 	bl	8000d30 <get_word_length>
+ 8000c1a:	4603      	mov	r3, r0
+ 8000c1c:	b29b      	uxth	r3, r3
+ 8000c1e:	461a      	mov	r2, r3
+ 8000c20:	4936      	ldr	r1, [pc, #216]	; (8000cfc <main+0x134>)
+ 8000c22:	4838      	ldr	r0, [pc, #224]	; (8000d04 <main+0x13c>)
+ 8000c24:	f7ff fdf8 	bl	8000818 <flash_read_data>
+
+    /*Convert to string*/
+    get_str((uint32_t *)buff_rcv_data,buff_rcv_char);
+ 8000c28:	4937      	ldr	r1, [pc, #220]	; (8000d08 <main+0x140>)
+ 8000c2a:	4834      	ldr	r0, [pc, #208]	; (8000cfc <main+0x134>)
+ 8000c2c:	f7ff fe56 	bl	80008dc <get_str>
+
+    /*Test single word*/
+    flash_write_num(0x08020000,g_curr_val);
+ 8000c30:	4b36      	ldr	r3, [pc, #216]	; (8000d0c <main+0x144>)
+ 8000c32:	681b      	ldr	r3, [r3, #0]
+ 8000c34:	ee07 3a90 	vmov	s15, r3
+ 8000c38:	eef8 7a67 	vcvt.f32.u32	s15, s15
+ 8000c3c:	eeb0 0a67 	vmov.f32	s0, s15
+ 8000c40:	4833      	ldr	r0, [pc, #204]	; (8000d10 <main+0x148>)
+ 8000c42:	f7ff fe87 	bl	8000954 <flash_write_num>
+
+    /*Get single word*/
+    g_rcv_val = flash_read_num(0x08020000);
+ 8000c46:	4832      	ldr	r0, [pc, #200]	; (8000d10 <main+0x148>)
+ 8000c48:	f7ff fe9a 	bl	8000980 <flash_read_num>
+ 8000c4c:	eef0 7a40 	vmov.f32	s15, s0
+ 8000c50:	eefc 7ae7 	vcvt.u32.f32	s15, s15
+ 8000c54:	ee17 2a90 	vmov	r2, s15
+ 8000c58:	4b2e      	ldr	r3, [pc, #184]	; (8000d14 <main+0x14c>)
+ 8000c5a:	601a      	str	r2, [r3, #0]
+
+    /*Test WRP*/
+    //flash_setting =  flash_obytes_get_wrp();
+
+    /*Test RDP*/
+    flash_setting =  flash_obytes_get_rdp();
+ 8000c5c:	f7ff feb6 	bl	80009cc <flash_obytes_get_rdp>
+ 8000c60:	4603      	mov	r3, r0
+ 8000c62:	461a      	mov	r2, r3
+ 8000c64:	4b2c      	ldr	r3, [pc, #176]	; (8000d18 <main+0x150>)
+ 8000c66:	701a      	strb	r2, [r3, #0]
+
+    /*Test all obytes settings*/
+    flash_obytes_get_config(&all_obytes_setting);
+ 8000c68:	482c      	ldr	r0, [pc, #176]	; (8000d1c <main+0x154>)
+ 8000c6a:	f7ff ff63 	bl	8000b34 <flash_obytes_get_config>
+
+    /*Enable Write protection for SECTOR 4*/
+
+    sector_set_wrp(SECTOR_4);
+ 8000c6e:	2010      	movs	r0, #16
+ 8000c70:	f7ff ff04 	bl	8000a7c <sector_set_wrp>
+
+    /*Write data*/
+    flash_write_data(0x08010000,(uint32_t *)pbuff_test_string2, get_word_length(pbuff_test_string2));
+ 8000c74:	4b2a      	ldr	r3, [pc, #168]	; (8000d20 <main+0x158>)
+ 8000c76:	681c      	ldr	r4, [r3, #0]
+ 8000c78:	4b29      	ldr	r3, [pc, #164]	; (8000d20 <main+0x158>)
+ 8000c7a:	681b      	ldr	r3, [r3, #0]
+ 8000c7c:	4618      	mov	r0, r3
+ 8000c7e:	f000 f857 	bl	8000d30 <get_word_length>
+ 8000c82:	4603      	mov	r3, r0
+ 8000c84:	b29b      	uxth	r3, r3
+ 8000c86:	461a      	mov	r2, r3
+ 8000c88:	4621      	mov	r1, r4
+ 8000c8a:	4826      	ldr	r0, [pc, #152]	; (8000d24 <main+0x15c>)
+ 8000c8c:	f7ff fd6e 	bl	800076c <flash_write_data>
+
+    /*Read data*/
+    flash_read_data(0x08010000,buff_rcv_data2,get_word_length(pbuff_test_string2));
+ 8000c90:	4b23      	ldr	r3, [pc, #140]	; (8000d20 <main+0x158>)
+ 8000c92:	681b      	ldr	r3, [r3, #0]
+ 8000c94:	4618      	mov	r0, r3
+ 8000c96:	f000 f84b 	bl	8000d30 <get_word_length>
+ 8000c9a:	4603      	mov	r3, r0
+ 8000c9c:	b29b      	uxth	r3, r3
+ 8000c9e:	461a      	mov	r2, r3
+ 8000ca0:	4921      	ldr	r1, [pc, #132]	; (8000d28 <main+0x160>)
+ 8000ca2:	4820      	ldr	r0, [pc, #128]	; (8000d24 <main+0x15c>)
+ 8000ca4:	f7ff fdb8 	bl	8000818 <flash_read_data>
+
+    /*Convert to string*/
+    get_str((uint32_t *)buff_rcv_data2,buff_rcv_char2);
+ 8000ca8:	4920      	ldr	r1, [pc, #128]	; (8000d2c <main+0x164>)
+ 8000caa:	481f      	ldr	r0, [pc, #124]	; (8000d28 <main+0x160>)
+ 8000cac:	f7ff fe16 	bl	80008dc <get_str>
+
+
+    /*Disaqble all write protection*/
+    dis_wrp_all_sectors();
+ 8000cb0:	f7ff ff16 	bl	8000ae0 <dis_wrp_all_sectors>
+
+
+    /*Write data*/
+    flash_write_data(0x08010000,(uint32_t *)pbuff_test_string2, get_word_length(pbuff_test_string2));
+ 8000cb4:	4b1a      	ldr	r3, [pc, #104]	; (8000d20 <main+0x158>)
+ 8000cb6:	681c      	ldr	r4, [r3, #0]
+ 8000cb8:	4b19      	ldr	r3, [pc, #100]	; (8000d20 <main+0x158>)
+ 8000cba:	681b      	ldr	r3, [r3, #0]
+ 8000cbc:	4618      	mov	r0, r3
+ 8000cbe:	f000 f837 	bl	8000d30 <get_word_length>
+ 8000cc2:	4603      	mov	r3, r0
+ 8000cc4:	b29b      	uxth	r3, r3
+ 8000cc6:	461a      	mov	r2, r3
+ 8000cc8:	4621      	mov	r1, r4
+ 8000cca:	4816      	ldr	r0, [pc, #88]	; (8000d24 <main+0x15c>)
+ 8000ccc:	f7ff fd4e 	bl	800076c <flash_write_data>
+
+    /*Read data*/
+    flash_read_data(0x08010000,buff_rcv_data2,get_word_length(pbuff_test_string2));
+ 8000cd0:	4b13      	ldr	r3, [pc, #76]	; (8000d20 <main+0x158>)
+ 8000cd2:	681b      	ldr	r3, [r3, #0]
+ 8000cd4:	4618      	mov	r0, r3
+ 8000cd6:	f000 f82b 	bl	8000d30 <get_word_length>
+ 8000cda:	4603      	mov	r3, r0
+ 8000cdc:	b29b      	uxth	r3, r3
+ 8000cde:	461a      	mov	r2, r3
+ 8000ce0:	4911      	ldr	r1, [pc, #68]	; (8000d28 <main+0x160>)
+ 8000ce2:	4810      	ldr	r0, [pc, #64]	; (8000d24 <main+0x15c>)
+ 8000ce4:	f7ff fd98 	bl	8000818 <flash_read_data>
+
+    /*Convert to string*/
+    get_str((uint32_t *)buff_rcv_data2,buff_rcv_char2);
+ 8000ce8:	4910      	ldr	r1, [pc, #64]	; (8000d2c <main+0x164>)
+ 8000cea:	480f      	ldr	r0, [pc, #60]	; (8000d28 <main+0x160>)
+ 8000cec:	f7ff fdf6 	bl	80008dc <get_str>
+	while(1)
+ 8000cf0:	e7fe      	b.n	8000cf0 <main+0x128>
+ 8000cf2:	bf00      	nop
+ 8000cf4:	20000000 	.word	0x20000000
+ 8000cf8:	08060000 	.word	0x08060000
+ 8000cfc:	20000070 	.word	0x20000070
+ 8000d00:	20000028 	.word	0x20000028
+ 8000d04:	08040000 	.word	0x08040000
+ 8000d08:	200001ec 	.word	0x200001ec
+ 8000d0c:	20000030 	.word	0x20000030
+ 8000d10:	08020000 	.word	0x08020000
+ 8000d14:	2000006c 	.word	0x2000006c
+ 8000d18:	20000110 	.word	0x20000110
+ 8000d1c:	200001b4 	.word	0x200001b4
+ 8000d20:	2000002c 	.word	0x2000002c
+ 8000d24:	08010000 	.word	0x08010000
+ 8000d28:	20000114 	.word	0x20000114
+ 8000d2c:	200001c4 	.word	0x200001c4
+
+08000d30 <get_word_length>:
+	}
+}
+
+
+static uint32_t get_word_length(char *buff)
+{
+ 8000d30:	b590      	push	{r4, r7, lr}
+ 8000d32:	b085      	sub	sp, #20
+ 8000d34:	af00      	add	r7, sp, #0
+ 8000d36:	6078      	str	r0, [r7, #4]
+	uint32_t ret;
+
+	ret =  (strlen(buff)/4) + ((strlen(buff)%4) !=0);
+ 8000d38:	6878      	ldr	r0, [r7, #4]
+ 8000d3a:	f7ff fa4d 	bl	80001d8 <strlen>
+ 8000d3e:	4603      	mov	r3, r0
+ 8000d40:	089c      	lsrs	r4, r3, #2
+ 8000d42:	6878      	ldr	r0, [r7, #4]
+ 8000d44:	f7ff fa48 	bl	80001d8 <strlen>
+ 8000d48:	4603      	mov	r3, r0
+ 8000d4a:	f003 0303 	and.w	r3, r3, #3
+ 8000d4e:	2b00      	cmp	r3, #0
+ 8000d50:	bf14      	ite	ne
+ 8000d52:	2301      	movne	r3, #1
+ 8000d54:	2300      	moveq	r3, #0
+ 8000d56:	b2db      	uxtb	r3, r3
+ 8000d58:	4423      	add	r3, r4
+ 8000d5a:	60fb      	str	r3, [r7, #12]
+
+	return ret;
+ 8000d5c:	68fb      	ldr	r3, [r7, #12]
+
+}
+ 8000d5e:	4618      	mov	r0, r3
+ 8000d60:	3714      	adds	r7, #20
+ 8000d62:	46bd      	mov	sp, r7
+ 8000d64:	bd90      	pop	{r4, r7, pc}
+
+08000d66 <delay>:
+volatile uint32_t g_curr_tick_p;
+
+
+/*Delay in seconds*/
+void delay(uint32_t delay)
+{
+ 8000d66:	b580      	push	{r7, lr}
+ 8000d68:	b084      	sub	sp, #16
+ 8000d6a:	af00      	add	r7, sp, #0
+ 8000d6c:	6078      	str	r0, [r7, #4]
+	uint32_t tickstart =  get_tick();
+ 8000d6e:	f000 f819 	bl	8000da4 <get_tick>
+ 8000d72:	60b8      	str	r0, [r7, #8]
+	uint32_t wait =  delay;
+ 8000d74:	687b      	ldr	r3, [r7, #4]
+ 8000d76:	60fb      	str	r3, [r7, #12]
+
+	if(wait < MAX_DELAY)
+ 8000d78:	68fb      	ldr	r3, [r7, #12]
+ 8000d7a:	f1b3 3fff 	cmp.w	r3, #4294967295
+ 8000d7e:	d002      	beq.n	8000d86 <delay+0x20>
+	{
+		wait += (uint32_t)TICK_FREQ;
+ 8000d80:	68fb      	ldr	r3, [r7, #12]
+ 8000d82:	3301      	adds	r3, #1
+ 8000d84:	60fb      	str	r3, [r7, #12]
+	}
+
+    while((get_tick() - tickstart) < wait){}
+ 8000d86:	bf00      	nop
+ 8000d88:	f000 f80c 	bl	8000da4 <get_tick>
+ 8000d8c:	4602      	mov	r2, r0
+ 8000d8e:	68bb      	ldr	r3, [r7, #8]
+ 8000d90:	1ad3      	subs	r3, r2, r3
+ 8000d92:	68fa      	ldr	r2, [r7, #12]
+ 8000d94:	429a      	cmp	r2, r3
+ 8000d96:	d8f7      	bhi.n	8000d88 <delay+0x22>
+
+}
+ 8000d98:	bf00      	nop
+ 8000d9a:	bf00      	nop
+ 8000d9c:	3710      	adds	r7, #16
+ 8000d9e:	46bd      	mov	sp, r7
+ 8000da0:	bd80      	pop	{r7, pc}
+	...
+
+08000da4 <get_tick>:
+
+uint32_t get_tick(void)
+{
+ 8000da4:	b480      	push	{r7}
+ 8000da6:	af00      	add	r7, sp, #0
+  __ASM volatile ("cpsid i" : : : "memory");
+ 8000da8:	b672      	cpsid	i
+}
+ 8000daa:	bf00      	nop
+	__disable_irq();
+	g_curr_tick_p = g_curr_tick;
+ 8000dac:	4b06      	ldr	r3, [pc, #24]	; (8000dc8 <get_tick+0x24>)
+ 8000dae:	681b      	ldr	r3, [r3, #0]
+ 8000db0:	4a06      	ldr	r2, [pc, #24]	; (8000dcc <get_tick+0x28>)
+ 8000db2:	6013      	str	r3, [r2, #0]
+  __ASM volatile ("cpsie i" : : : "memory");
+ 8000db4:	b662      	cpsie	i
+}
+ 8000db6:	bf00      	nop
+	__enable_irq();
+
+	return g_curr_tick_p;
+ 8000db8:	4b04      	ldr	r3, [pc, #16]	; (8000dcc <get_tick+0x28>)
+ 8000dba:	681b      	ldr	r3, [r3, #0]
+
+}
+ 8000dbc:	4618      	mov	r0, r3
+ 8000dbe:	46bd      	mov	sp, r7
+ 8000dc0:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 8000dc4:	4770      	bx	lr
+ 8000dc6:	bf00      	nop
+ 8000dc8:	20000218 	.word	0x20000218
+ 8000dcc:	20000214 	.word	0x20000214
+
+08000dd0 <tick_increment>:
+static void tick_increment(void)
+{
+ 8000dd0:	b480      	push	{r7}
+ 8000dd2:	af00      	add	r7, sp, #0
+	g_curr_tick += TICK_FREQ;
+ 8000dd4:	4b04      	ldr	r3, [pc, #16]	; (8000de8 <tick_increment+0x18>)
+ 8000dd6:	681b      	ldr	r3, [r3, #0]
+ 8000dd8:	3301      	adds	r3, #1
+ 8000dda:	4a03      	ldr	r2, [pc, #12]	; (8000de8 <tick_increment+0x18>)
+ 8000ddc:	6013      	str	r3, [r2, #0]
+}
+ 8000dde:	bf00      	nop
+ 8000de0:	46bd      	mov	sp, r7
+ 8000de2:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 8000de6:	4770      	bx	lr
+ 8000de8:	20000218 	.word	0x20000218
+
+08000dec <timebase_init>:
+void timebase_init(void)
+{
+ 8000dec:	b480      	push	{r7}
+ 8000dee:	af00      	add	r7, sp, #0
+  __ASM volatile ("cpsid i" : : : "memory");
+ 8000df0:	b672      	cpsid	i
+}
+ 8000df2:	bf00      	nop
+
+	/*Disable global interrupts*/
+	__disable_irq();
+
+    /*Load the timer with number of clock cycles per msecond*/
+	SysTick->LOAD =  ONE_MSEC_LOAD - 1;
+ 8000df4:	4b0e      	ldr	r3, [pc, #56]	; (8000e30 <timebase_init+0x44>)
+ 8000df6:	f643 627f 	movw	r2, #15999	; 0x3e7f
+ 8000dfa:	605a      	str	r2, [r3, #4]
+
+    /*Clear systick current value register*/
+	SysTick->VAL = 0;
+ 8000dfc:	4b0c      	ldr	r3, [pc, #48]	; (8000e30 <timebase_init+0x44>)
+ 8000dfe:	2200      	movs	r2, #0
+ 8000e00:	609a      	str	r2, [r3, #8]
+
+    /*Select internal clock source*/
+	SysTick->CTRL = CTRL_CLCKSRC;
+ 8000e02:	4b0b      	ldr	r3, [pc, #44]	; (8000e30 <timebase_init+0x44>)
+ 8000e04:	2204      	movs	r2, #4
+ 8000e06:	601a      	str	r2, [r3, #0]
+
+    /*Enable interrupt*/
+	SysTick->CTRL |= CTRL_TICKINT;
+ 8000e08:	4b09      	ldr	r3, [pc, #36]	; (8000e30 <timebase_init+0x44>)
+ 8000e0a:	681b      	ldr	r3, [r3, #0]
+ 8000e0c:	4a08      	ldr	r2, [pc, #32]	; (8000e30 <timebase_init+0x44>)
+ 8000e0e:	f043 0302 	orr.w	r3, r3, #2
+ 8000e12:	6013      	str	r3, [r2, #0]
+
+	/*Enable systick*/
+	SysTick->CTRL |=CTRL_ENABLE;
+ 8000e14:	4b06      	ldr	r3, [pc, #24]	; (8000e30 <timebase_init+0x44>)
+ 8000e16:	681b      	ldr	r3, [r3, #0]
+ 8000e18:	4a05      	ldr	r2, [pc, #20]	; (8000e30 <timebase_init+0x44>)
+ 8000e1a:	f043 0301 	orr.w	r3, r3, #1
+ 8000e1e:	6013      	str	r3, [r2, #0]
+  __ASM volatile ("cpsie i" : : : "memory");
+ 8000e20:	b662      	cpsie	i
+}
+ 8000e22:	bf00      	nop
+
+	/*Enable global interrupts*/
+	__enable_irq();
+}
+ 8000e24:	bf00      	nop
+ 8000e26:	46bd      	mov	sp, r7
+ 8000e28:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 8000e2c:	4770      	bx	lr
+ 8000e2e:	bf00      	nop
+ 8000e30:	e000e010 	.word	0xe000e010
+
+08000e34 <SysTick_Handler>:
+
+void SysTick_Handler(void)
+{
+ 8000e34:	b580      	push	{r7, lr}
+ 8000e36:	af00      	add	r7, sp, #0
+	tick_increment();
+ 8000e38:	f7ff ffca 	bl	8000dd0 <tick_increment>
+}
+ 8000e3c:	bf00      	nop
+ 8000e3e:	bd80      	pop	{r7, pc}
+
+08000e40 <debug_uart_init>:
+	uart_write(ch);
+	return ch;
+}
+
+void debug_uart_init(void)
+{
+ 8000e40:	b580      	push	{r7, lr}
+ 8000e42:	af00      	add	r7, sp, #0
+	/*Enable clock access to GPIOA*/
+	RCC->AHB1ENR |= GPIOAEN;
+ 8000e44:	4b1f      	ldr	r3, [pc, #124]	; (8000ec4 <debug_uart_init+0x84>)
+ 8000e46:	6b1b      	ldr	r3, [r3, #48]	; 0x30
+ 8000e48:	4a1e      	ldr	r2, [pc, #120]	; (8000ec4 <debug_uart_init+0x84>)
+ 8000e4a:	f043 0301 	orr.w	r3, r3, #1
+ 8000e4e:	6313      	str	r3, [r2, #48]	; 0x30
+
+	/*Set the mode of PA2 to alternate function mode*/
+	GPIOA->MODER &=~(1U<<4);
+ 8000e50:	4b1d      	ldr	r3, [pc, #116]	; (8000ec8 <debug_uart_init+0x88>)
+ 8000e52:	681b      	ldr	r3, [r3, #0]
+ 8000e54:	4a1c      	ldr	r2, [pc, #112]	; (8000ec8 <debug_uart_init+0x88>)
+ 8000e56:	f023 0310 	bic.w	r3, r3, #16
+ 8000e5a:	6013      	str	r3, [r2, #0]
+	GPIOA->MODER |=(1U<<5);
+ 8000e5c:	4b1a      	ldr	r3, [pc, #104]	; (8000ec8 <debug_uart_init+0x88>)
+ 8000e5e:	681b      	ldr	r3, [r3, #0]
+ 8000e60:	4a19      	ldr	r2, [pc, #100]	; (8000ec8 <debug_uart_init+0x88>)
+ 8000e62:	f043 0320 	orr.w	r3, r3, #32
+ 8000e66:	6013      	str	r3, [r2, #0]
+
+	/*Set alternate function type to AF7(UART2_TX)*/
+	GPIOA->AFR[0] |=(1U<<8);
+ 8000e68:	4b17      	ldr	r3, [pc, #92]	; (8000ec8 <debug_uart_init+0x88>)
+ 8000e6a:	6a1b      	ldr	r3, [r3, #32]
+ 8000e6c:	4a16      	ldr	r2, [pc, #88]	; (8000ec8 <debug_uart_init+0x88>)
+ 8000e6e:	f443 7380 	orr.w	r3, r3, #256	; 0x100
+ 8000e72:	6213      	str	r3, [r2, #32]
+	GPIOA->AFR[0] |=(1U<<9);
+ 8000e74:	4b14      	ldr	r3, [pc, #80]	; (8000ec8 <debug_uart_init+0x88>)
+ 8000e76:	6a1b      	ldr	r3, [r3, #32]
+ 8000e78:	4a13      	ldr	r2, [pc, #76]	; (8000ec8 <debug_uart_init+0x88>)
+ 8000e7a:	f443 7300 	orr.w	r3, r3, #512	; 0x200
+ 8000e7e:	6213      	str	r3, [r2, #32]
+	GPIOA->AFR[0] |=(1U<<10);
+ 8000e80:	4b11      	ldr	r3, [pc, #68]	; (8000ec8 <debug_uart_init+0x88>)
+ 8000e82:	6a1b      	ldr	r3, [r3, #32]
+ 8000e84:	4a10      	ldr	r2, [pc, #64]	; (8000ec8 <debug_uart_init+0x88>)
+ 8000e86:	f443 6380 	orr.w	r3, r3, #1024	; 0x400
+ 8000e8a:	6213      	str	r3, [r2, #32]
+	GPIOA->AFR[0] &=~(1U<<11);
+ 8000e8c:	4b0e      	ldr	r3, [pc, #56]	; (8000ec8 <debug_uart_init+0x88>)
+ 8000e8e:	6a1b      	ldr	r3, [r3, #32]
+ 8000e90:	4a0d      	ldr	r2, [pc, #52]	; (8000ec8 <debug_uart_init+0x88>)
+ 8000e92:	f423 6300 	bic.w	r3, r3, #2048	; 0x800
+ 8000e96:	6213      	str	r3, [r2, #32]
+
+	/*Enable clock access to UART2*/
+     RCC->APB1ENR |=	UART2EN;
+ 8000e98:	4b0a      	ldr	r3, [pc, #40]	; (8000ec4 <debug_uart_init+0x84>)
+ 8000e9a:	6c1b      	ldr	r3, [r3, #64]	; 0x40
+ 8000e9c:	4a09      	ldr	r2, [pc, #36]	; (8000ec4 <debug_uart_init+0x84>)
+ 8000e9e:	f443 3300 	orr.w	r3, r3, #131072	; 0x20000
+ 8000ea2:	6413      	str	r3, [r2, #64]	; 0x40
+
+	/*Configure uart baudrate*/
+     uart_set_baudrate(APB1_CLK,DBG_UART_BAUDRATE);
+ 8000ea4:	f44f 31e1 	mov.w	r1, #115200	; 0x1c200
+ 8000ea8:	4808      	ldr	r0, [pc, #32]	; (8000ecc <debug_uart_init+0x8c>)
+ 8000eaa:	f000 f827 	bl	8000efc <uart_set_baudrate>
+
+	/*Configure transfer direction*/
+     USART2->CR1 = CR1_TE;
+ 8000eae:	4b08      	ldr	r3, [pc, #32]	; (8000ed0 <debug_uart_init+0x90>)
+ 8000eb0:	2208      	movs	r2, #8
+ 8000eb2:	60da      	str	r2, [r3, #12]
+
+	/*Enable UART Module*/
+     USART2->CR1 |= CR1_UE;
+ 8000eb4:	4b06      	ldr	r3, [pc, #24]	; (8000ed0 <debug_uart_init+0x90>)
+ 8000eb6:	68db      	ldr	r3, [r3, #12]
+ 8000eb8:	4a05      	ldr	r2, [pc, #20]	; (8000ed0 <debug_uart_init+0x90>)
+ 8000eba:	f443 5300 	orr.w	r3, r3, #8192	; 0x2000
+ 8000ebe:	60d3      	str	r3, [r2, #12]
+}
+ 8000ec0:	bf00      	nop
+ 8000ec2:	bd80      	pop	{r7, pc}
+ 8000ec4:	40023800 	.word	0x40023800
+ 8000ec8:	40020000 	.word	0x40020000
+ 8000ecc:	00f42400 	.word	0x00f42400
+ 8000ed0:	40004400 	.word	0x40004400
+
+08000ed4 <compute_uart_bd>:
+
+	/*Write to transmit data register*/
+	USART2->DR =(ch & 0xFF);
+}
+static uint16_t compute_uart_bd(uint32_t periph_clk,uint32_t baudrate)
+{
+ 8000ed4:	b480      	push	{r7}
+ 8000ed6:	b083      	sub	sp, #12
+ 8000ed8:	af00      	add	r7, sp, #0
+ 8000eda:	6078      	str	r0, [r7, #4]
+ 8000edc:	6039      	str	r1, [r7, #0]
+	return((periph_clk + (baudrate/2U))/baudrate);
+ 8000ede:	683b      	ldr	r3, [r7, #0]
+ 8000ee0:	085a      	lsrs	r2, r3, #1
+ 8000ee2:	687b      	ldr	r3, [r7, #4]
+ 8000ee4:	441a      	add	r2, r3
+ 8000ee6:	683b      	ldr	r3, [r7, #0]
+ 8000ee8:	fbb2 f3f3 	udiv	r3, r2, r3
+ 8000eec:	b29b      	uxth	r3, r3
+}
+ 8000eee:	4618      	mov	r0, r3
+ 8000ef0:	370c      	adds	r7, #12
+ 8000ef2:	46bd      	mov	sp, r7
+ 8000ef4:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 8000ef8:	4770      	bx	lr
+	...
+
+08000efc <uart_set_baudrate>:
+
+static void uart_set_baudrate(uint32_t periph_clk,uint32_t baudrate)
+{
+ 8000efc:	b580      	push	{r7, lr}
+ 8000efe:	b082      	sub	sp, #8
+ 8000f00:	af00      	add	r7, sp, #0
+ 8000f02:	6078      	str	r0, [r7, #4]
+ 8000f04:	6039      	str	r1, [r7, #0]
+	USART2->BRR = compute_uart_bd(periph_clk,baudrate);
+ 8000f06:	6839      	ldr	r1, [r7, #0]
+ 8000f08:	6878      	ldr	r0, [r7, #4]
+ 8000f0a:	f7ff ffe3 	bl	8000ed4 <compute_uart_bd>
+ 8000f0e:	4603      	mov	r3, r0
+ 8000f10:	461a      	mov	r2, r3
+ 8000f12:	4b03      	ldr	r3, [pc, #12]	; (8000f20 <uart_set_baudrate+0x24>)
+ 8000f14:	609a      	str	r2, [r3, #8]
+}
+ 8000f16:	bf00      	nop
+ 8000f18:	3708      	adds	r7, #8
+ 8000f1a:	46bd      	mov	sp, r7
+ 8000f1c:	bd80      	pop	{r7, pc}
+ 8000f1e:	bf00      	nop
+ 8000f20:	40004400 	.word	0x40004400
+
+08000f24 <Reset_Handler>:
+
+  .section .text.Reset_Handler
+  .weak Reset_Handler
+  .type Reset_Handler, %function
+Reset_Handler:
+  ldr   r0, =_estack
+ 8000f24:	480d      	ldr	r0, [pc, #52]	; (8000f5c <LoopForever+0x2>)
+  mov   sp, r0          /* set stack pointer */
+ 8000f26:	4685      	mov	sp, r0
+/* Call the clock system intitialization function.*/
+  bl  SystemInit
+ 8000f28:	f3af 8000 	nop.w
+
+/* Copy the data segment initializers from flash to SRAM */
+  ldr r0, =_sdata
+ 8000f2c:	480c      	ldr	r0, [pc, #48]	; (8000f60 <LoopForever+0x6>)
+  ldr r1, =_edata
+ 8000f2e:	490d      	ldr	r1, [pc, #52]	; (8000f64 <LoopForever+0xa>)
+  ldr r2, =_sidata
+ 8000f30:	4a0d      	ldr	r2, [pc, #52]	; (8000f68 <LoopForever+0xe>)
+  movs r3, #0
+ 8000f32:	2300      	movs	r3, #0
+  b LoopCopyDataInit
+ 8000f34:	e002      	b.n	8000f3c <LoopCopyDataInit>
+
+08000f36 <CopyDataInit>:
+
+CopyDataInit:
+  ldr r4, [r2, r3]
+ 8000f36:	58d4      	ldr	r4, [r2, r3]
+  str r4, [r0, r3]
+ 8000f38:	50c4      	str	r4, [r0, r3]
+  adds r3, r3, #4
+ 8000f3a:	3304      	adds	r3, #4
+
+08000f3c <LoopCopyDataInit>:
+
+LoopCopyDataInit:
+  adds r4, r0, r3
+ 8000f3c:	18c4      	adds	r4, r0, r3
+  cmp r4, r1
+ 8000f3e:	428c      	cmp	r4, r1
+  bcc CopyDataInit
+ 8000f40:	d3f9      	bcc.n	8000f36 <CopyDataInit>
+
+/* Zero fill the bss segment. */
+  ldr r2, =_sbss
+ 8000f42:	4a0a      	ldr	r2, [pc, #40]	; (8000f6c <LoopForever+0x12>)
+  ldr r4, =_ebss
+ 8000f44:	4c0a      	ldr	r4, [pc, #40]	; (8000f70 <LoopForever+0x16>)
+  movs r3, #0
+ 8000f46:	2300      	movs	r3, #0
+  b LoopFillZerobss
+ 8000f48:	e001      	b.n	8000f4e <LoopFillZerobss>
+
+08000f4a <FillZerobss>:
+
+FillZerobss:
+  str  r3, [r2]
+ 8000f4a:	6013      	str	r3, [r2, #0]
+  adds r2, r2, #4
+ 8000f4c:	3204      	adds	r2, #4
+
+08000f4e <LoopFillZerobss>:
+
+LoopFillZerobss:
+  cmp r2, r4
+ 8000f4e:	42a2      	cmp	r2, r4
+  bcc FillZerobss
+ 8000f50:	d3fb      	bcc.n	8000f4a <FillZerobss>
+
+/* Call static constructors */
+  bl __libc_init_array
+ 8000f52:	f000 f811 	bl	8000f78 <__libc_init_array>
+/* Call the application's entry point.*/
+  bl main
+ 8000f56:	f7ff fe37 	bl	8000bc8 <main>
+
+08000f5a <LoopForever>:
+
+LoopForever:
+    b LoopForever
+ 8000f5a:	e7fe      	b.n	8000f5a <LoopForever>
+  ldr   r0, =_estack
+ 8000f5c:	20020000 	.word	0x20020000
+  ldr r0, =_sdata
+ 8000f60:	20000000 	.word	0x20000000
+  ldr r1, =_edata
+ 8000f64:	20000034 	.word	0x20000034
+  ldr r2, =_sidata
+ 8000f68:	08001018 	.word	0x08001018
+  ldr r2, =_sbss
+ 8000f6c:	20000034 	.word	0x20000034
+  ldr r4, =_ebss
+ 8000f70:	2000021c 	.word	0x2000021c
+
+08000f74 <ADC_IRQHandler>:
+ * @retval : None
+*/
+  .section .text.Default_Handler,"ax",%progbits
+Default_Handler:
+Infinite_Loop:
+  b Infinite_Loop
+ 8000f74:	e7fe      	b.n	8000f74 <ADC_IRQHandler>
+	...
+
+08000f78 <__libc_init_array>:
+ 8000f78:	b570      	push	{r4, r5, r6, lr}
+ 8000f7a:	4d0d      	ldr	r5, [pc, #52]	; (8000fb0 <__libc_init_array+0x38>)
+ 8000f7c:	4c0d      	ldr	r4, [pc, #52]	; (8000fb4 <__libc_init_array+0x3c>)
+ 8000f7e:	1b64      	subs	r4, r4, r5
+ 8000f80:	10a4      	asrs	r4, r4, #2
+ 8000f82:	2600      	movs	r6, #0
+ 8000f84:	42a6      	cmp	r6, r4
+ 8000f86:	d109      	bne.n	8000f9c <__libc_init_array+0x24>
+ 8000f88:	4d0b      	ldr	r5, [pc, #44]	; (8000fb8 <__libc_init_array+0x40>)
+ 8000f8a:	4c0c      	ldr	r4, [pc, #48]	; (8000fbc <__libc_init_array+0x44>)
+ 8000f8c:	f000 f818 	bl	8000fc0 <_init>
+ 8000f90:	1b64      	subs	r4, r4, r5
+ 8000f92:	10a4      	asrs	r4, r4, #2
+ 8000f94:	2600      	movs	r6, #0
+ 8000f96:	42a6      	cmp	r6, r4
+ 8000f98:	d105      	bne.n	8000fa6 <__libc_init_array+0x2e>
+ 8000f9a:	bd70      	pop	{r4, r5, r6, pc}
+ 8000f9c:	f855 3b04 	ldr.w	r3, [r5], #4
+ 8000fa0:	4798      	blx	r3
+ 8000fa2:	3601      	adds	r6, #1
+ 8000fa4:	e7ee      	b.n	8000f84 <__libc_init_array+0xc>
+ 8000fa6:	f855 3b04 	ldr.w	r3, [r5], #4
+ 8000faa:	4798      	blx	r3
+ 8000fac:	3601      	adds	r6, #1
+ 8000fae:	e7f2      	b.n	8000f96 <__libc_init_array+0x1e>
+ 8000fb0:	08001010 	.word	0x08001010
+ 8000fb4:	08001010 	.word	0x08001010
+ 8000fb8:	08001010 	.word	0x08001010
+ 8000fbc:	08001014 	.word	0x08001014
+
+08000fc0 <_init>:
+ 8000fc0:	b5f8      	push	{r3, r4, r5, r6, r7, lr}
+ 8000fc2:	bf00      	nop
+ 8000fc4:	bcf8      	pop	{r3, r4, r5, r6, r7}
+ 8000fc6:	bc08      	pop	{r3}
+ 8000fc8:	469e      	mov	lr, r3
+ 8000fca:	4770      	bx	lr
+
+08000fcc <_fini>:
+ 8000fcc:	b5f8      	push	{r3, r4, r5, r6, r7, lr}
+ 8000fce:	bf00      	nop
+ 8000fd0:	bcf8      	pop	{r3, r4, r5, r6, r7}
+ 8000fd2:	bc08      	pop	{r3}
+ 8000fd4:	469e      	mov	lr, r3
+ 8000fd6:	4770      	bx	lr

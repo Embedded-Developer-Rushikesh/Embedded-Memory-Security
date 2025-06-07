@@ -1,0 +1,1 @@
+Developed bare-metal MPU driver to configure secure memory regions with specific access rights. Implemented tamper detection using RTC and backup domain to trigger secure data deletion. Configured option bytes to protect flash memory from unauthorized access, ensuring system integrity and security.
